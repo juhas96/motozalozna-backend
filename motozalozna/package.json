@@ -6,13 +6,16 @@
     "start": "node ./bin/www"
   },
   "dependencies": {
+    "axios": "^0.19.2",
     "basic-ftp": "^4.5.4",
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
     "express": "~4.16.1",
     "express-fileupload": "^1.1.7-alpha.3",
+    "form-data": "^3.0.0",
     "http-errors": "~1.6.3",
     "morgan": "~1.9.1",
+    "node-html-parser": "^1.2.17",
     "pug": "2.0.0-beta11"
   }
 }

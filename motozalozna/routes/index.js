@@ -5,6 +5,9 @@ var upload = require('express-fileupload');
 var bodyParser = require('body-parser');
 var dir = './tmp'
 var ftp = require('basic-ftp');
+var FormData = require('form-data');
+const axios = require('axios');
+const HTMLParser = require('node-html-parser');
 
 let ftpConfig = {
   host: 'www506.your-server.de',
@@ -91,9 +94,31 @@ router.post('/upload', (req, res) => {
   }
 });
 
+// url: http://www.institutfinancnejpolitiky.sk/kalkulacky/aut/getprice.php
 // Price check
 router.post('/check_price', (req, res) => {
+  if (req.body) {
+    var bodyFormData = new FormData();
+    var carPrice = 0;
+    // Map data to FormData
+    formDataMapper(bodyFormData, req.body)
 
+    // Call endpoint with data
+    axios.post('http://www.institutfinancnejpolitiky.sk/kalkulacky/aut/getprice.php',
+      bodyFormData,
+      {headers: {'Content-Type': 'multipart/form-data; boundary=' + bodyFormData.getBoundary()}}
+    ).then(result => {
+      // Parse result
+      const root = HTMLParser.parse(result.data);
+      const priceResult = root.querySelector('.result1');
+      carPrice = priceResult.querySelector('#odometer3').rawText
+      res.status(200).send(carPrice);
+    }).catch(error => {
+      console.log('ERROR: ', error);
+    })
+  } else {
+    res.end();
+  }
 });
 
 
@@ -101,5 +126,18 @@ router.post('/check_price', (req, res) => {
 router.post('/check_stolen', (req, res) => {
 
 })
+
+
+function formDataMapper(formData, data) {
+  formData.append('karoseria', data.karoseria);
+  formData.append('palivo', data.palivo);
+  formData.append('pohon', data.pohon);
+  formData.append('prevodovka', data.prevodovka);
+  formData.append('vykon', data.vykon);
+  formData.append('vek', data.vek);
+  formData.append('pocetkm', data.pocetkm);
+  formData.append('dovezene', data.dovezene);
+  formData.append('auto', data.auto);
+}
 
 module.exports = router;
