@@ -4,11 +4,10 @@ var fs = require('fs');
 var upload = require('express-fileupload');
 var bodyParser = require('body-parser');
 var dir = './tmp'
-var FTPClient = require('ftp');
+var ftp = require('basic-ftp');
 
 let ftpConfig = {
   host: 'www506.your-server.de',
-  port: 21,
   user: 'cityem_4',
   password: 'PVAW1k3zyeHUiWvC'
 }
@@ -16,34 +15,43 @@ let ftpConfig = {
 router.use(bodyParser.urlencoded({extended: true}))
 router.use(upload());
 
-var ftpClient = new FTPClient();
+const client = new ftp.Client();
 
-function copyFilesToFtp(sourcePath, destPath, ) {
-  ftpClient.on('ready', () => {
-    ftpClient.put(sourcePath, destPath, (err) => {
-      if (err) throw err;
-      ftpClient.end();
-    })
-  });
-
-  ftpClient.connect(ftpConfig);
+/**
+ * 
+ * @param {*} sourcePath - path to file which is copied 
+ * @param {*} destPath - destination path for file
+ */
+async function copyFilesToFtp(sourcePath, destPath, ) {
+  client.ftp.verbose = true;
+  try {
+    await client.access(ftpConfig);
+    await client.uploadFrom(sourcePath, destPath);
+  } catch (err) {
+    console.log(err);
+  }
+  client.close();
 }
 
-function copyTest(sourcePath, destPath, ) {
-  ftpClient.on('ready', () => {
-    ftpClient.put(sourcePath, destPath, (err) => {
-      if (err) throw err;
-      ftpClient.end();
-    })
-  });
 
-  ftpClient.connect(ftpConfig);
-}
+// File upload just for testing purposes
+// async function copyTest(sourcePath, destPath, ) {
+//   client.ftp.verbose = true;
+//   try {
+//     await client.access(ftpConfig);
+//     console.log(await client.list());
+//     await client.uploadFrom('./routes/META_FINAL.pdf', '2020/05/meta.pdf');
+//   } catch (err) {
+//     console.log(err);
+//   }
 
-router.get('/', (req, res) => {
-  copyTest('./test.txt', '2020/05/test.txt');
-  res.end();
-})
+//   client.close();
+// }
+
+// router.get('/', (req, res) => {
+//   copyTest('./test.txt', '2020/05/test.txt');
+//   res.end();
+// })
 
 // File upload
 router.post('/upload', (req, res) => {
