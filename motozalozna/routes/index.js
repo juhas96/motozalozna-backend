@@ -20,42 +20,6 @@ router.use(upload());
 
 const client = new ftp.Client();
 
-/**
- * 
- * @param {*} sourcePath - path to file which is copied 
- * @param {*} destPath - destination path for file
- */
-async function copyFilesToFtp(sourcePath, destPath, ) {
-  client.ftp.verbose = true;
-  try {
-    await client.access(ftpConfig);
-    await client.uploadFrom(sourcePath, destPath);
-  } catch (err) {
-    console.log(err);
-  }
-  client.close();
-}
-
-
-// File upload just for testing purposes
-// async function copyTest(sourcePath, destPath, ) {
-//   client.ftp.verbose = true;
-//   try {
-//     await client.access(ftpConfig);
-//     console.log(await client.list());
-//     await client.uploadFrom('./routes/META_FINAL.pdf', '2020/05/meta.pdf');
-//   } catch (err) {
-//     console.log(err);
-//   }
-
-//   client.close();
-// }
-
-// router.get('/', (req, res) => {
-//   copyTest('./test.txt', '2020/05/test.txt');
-//   res.end();
-// })
-
 // File upload
 router.post('/upload', (req, res) => {
   if (req.files) {
@@ -76,11 +40,8 @@ router.post('/upload', (req, res) => {
     personalInfoWriteStream.end();
     personalInfoWriteStream.on('finish', () => {
 
-
+    // TODO: create dir with name
     copyFilesToFtp(dir + `/${personalInfoFile.name}`, '2020/05/' + personalInfoFile.name)
-
-
-
       console.log('Personal Info file saved deleting file');
 
       // Delete file when is copied to FTP
@@ -94,7 +55,6 @@ router.post('/upload', (req, res) => {
   }
 });
 
-// url: http://www.institutfinancnejpolitiky.sk/kalkulacky/aut/getprice.php
 // Price check
 router.post('/check_price', (req, res) => {
   if (req.body) {
@@ -124,6 +84,36 @@ router.post('/check_price', (req, res) => {
 
 // Stolen check
 router.post('/check_stolen', (req, res) => {
+  if (req.body) {
+    var bodyFormData = new FormData();
+    bodyFormData.append('ec', req.body.ecv);
+
+    axios.post('https://www.minv.sk/?odcudzene-mot-vozidla',
+      bodyFormData,
+      {headers: {'Content-Type': 'multipart/form-data; boundary=' + bodyFormData.getBoundary()}}
+    ).then(result => {
+      // Parse HTML result
+      const root = HTMLParser.parse(result.data);
+      const tableWithResult = root.querySelector('.tabulka4');
+      const spanWithResult = tableWithResult.querySelector('.tddark');
+      var numberOfRecordsString = spanWithResult.firstChild.rawText;
+      numberOfRecordsString = numberOfRecordsString.replace(/\D/g, '');
+
+      // If numberOfRecords == 0 car is NOT stolen
+      if (numberOfRecordsString == 0) {
+        res.status(200).send(numberOfRecordsString);
+      } else {
+        res.status(403).send(numberOfRecordsString);
+      }
+    }).catch((err) => {
+      console.error(err);
+    })
+  } else {
+    res.end();
+  }
+})
+
+router.post('/create_pdf', (req, res) => {
 
 })
 
@@ -138,6 +128,42 @@ function formDataMapper(formData, data) {
   formData.append('pocetkm', data.pocetkm);
   formData.append('dovezene', data.dovezene);
   formData.append('auto', data.auto);
+}
+
+
+/**
+ * 
+ * @param {*} sourcePath - path to file which is copied 
+ * @param {*} destPath - destination path for file
+ */
+async function copyFilesToFtp(sourcePath, destPath, ) {
+  client.ftp.verbose = true;
+  try {
+    await client.access(ftpConfig);
+    await client.uploadFrom(sourcePath, destPath);
+  } catch (err) {
+    console.log(err);
+  }
+  client.close();
+}
+
+function checkIfCarIsStolen(ecv) {
+  var bodyFormData = new FormData();
+  bodyFormData.append('ec', ecv);
+
+  axios.post('https://www.minv.sk/?odcudzene-mot-vozidla',
+    bodyFormData,
+    {headers: {'Content-Type': 'multipart/form-data; boundary=' + bodyFormData.getBoundary()}}
+  ).then(result => {
+    const root = HTMLParser.parse(result.data);
+    const tableWithResult = root.querySelector('.tabulka4');
+    const spanWithResult = tableWithResult.querySelector('.tddark');
+    var numberOfRecordsString = spanWithResult.firstChild.rawText;
+    numberOfRecordsString = numberOfRecordsString.replace(/\D/g, '');
+    return numberOfRecordsString;
+  }).catch((err) => {
+    console.error(err);
+  })
 }
 
 module.exports = router;
