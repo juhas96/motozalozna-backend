@@ -16,6 +16,8 @@
     "http-errors": "~1.6.3",
     "morgan": "~1.9.1",
     "node-html-parser": "^1.2.17",
+    "nodemailer": "^6.4.6",
+    "pdfkit": "^0.11.0",
     "pug": "2.0.0-beta11"
   }
 }

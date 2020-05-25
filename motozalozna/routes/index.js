@@ -8,6 +8,7 @@ var ftp = require('basic-ftp');
 var FormData = require('form-data');
 const axios = require('axios');
 const HTMLParser = require('node-html-parser');
+const nodemailer = require("nodemailer");
 
 let ftpConfig = {
   host: 'www506.your-server.de',
@@ -19,6 +20,15 @@ router.use(bodyParser.urlencoded({extended: true}))
 router.use(upload());
 
 const client = new ftp.Client();
+
+router.get('/', (req, res) => {
+  createEmail().then(res => {
+    console.log(res);
+  }).catch((err) => {
+    console.log(err);
+  });
+  res.end();
+})
 
 // File upload
 router.post('/upload', (req, res) => {
@@ -164,6 +174,67 @@ function checkIfCarIsStolen(ecv) {
   }).catch((err) => {
     console.error(err);
   })
+}
+
+async function createEmail() {
+  let transporter = nodemailer.createTransport({
+    host: "mail.your-server.de",
+    port: 587,
+    secure: false, // true for 465, false for other ports
+    auth: {
+      user: 'info@motozalozna.sk', // generated ethereal user
+      pass: '0455e4V9ZCp7syF8', // generated ethereal password
+    },
+  });
+
+  // verify connection configuration
+transporter.verify(function(error, success) {
+  if (error) {
+    console.log(error);
+  } else {
+    console.log("Server is ready to take our messages");
+  }
+});
+
+  // send mail with defined transport object
+  let info = await transporter.sendMail({
+    from: '"Fred Foo 👻" <info@motozalozna.sk>', // sender address
+    to: "juhas.jugi@gmail.com", // list of receivers
+    subject: "Hello ✔", // Subject line
+    text: "Hello world?", // plain text body
+    html: "<b>Hello world?</b>", // html body
+  });
+
+  console.log("Message sent: %s", info.messageId);
+  // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
+
+  // Preview only available when sending through an Ethereal account
+  console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+}
+
+function createPDF(title, data, dir) {
+  return new Promise(function (resolve, reject) {
+    if (!fs.existsSync(dir)) {
+      fs.mkdir(dir, { recursive: true }, (error) => {
+        if (error) {
+          reject(error);
+        }
+      });
+    }
+    const doc = new PDFDocument();
+    doc.registerFont("Cardo", "fonts/Cardo-Regular.ttf");
+    doc.pipe(fs.createWriteStream(dir + "/form.pdf")).on("close", function () {
+      resolve();
+    });
+    doc.font("Cardo").text(title);
+    doc.text("-----");
+    for (var key in data) {
+      if (data.hasOwnProperty(key) && key !== "files") {
+        doc.font("Cardo").text(labels[key] + ": " + checkValue(data[key]));
+      }
+    }
+    doc.end();
+  });
 }
 
 module.exports = router;
