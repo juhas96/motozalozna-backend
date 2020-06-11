@@ -67,6 +67,7 @@ router.post('/upload', (req, res) => {
 
 // Price check
 router.post('/check_price', (req, res) => {
+  console.log('tadyy')
   if (req.body) {
     var bodyFormData = new FormData();
     var carPrice = 0;
@@ -136,8 +137,8 @@ function formDataMapper(formData, data) {
   formData.append('vykon', data.vykon);
   formData.append('vek', data.vek);
   formData.append('pocetkm', data.pocetkm);
-  formData.append('dovezene', data.dovezene);
-  formData.append('auto', data.auto);
+  formData.append('dovezene', 0);
+  formData.append('auto', 168);
 }
 
 
