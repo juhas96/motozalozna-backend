@@ -18,22 +18,45 @@ let ftpConfig = {
 
 router.use(bodyParser.urlencoded({extended: true}))
 router.use(upload());
+const htmlFile = fs.readFileSync('routes/cars.txt', 'utf-8');
+
 
 const client = new ftp.Client();
 
-router.get('/', (req, res) => {
-  createEmail().then(res => {
-    console.log(res);
-  }).catch((err) => {
-    console.log(err);
-  });
+// router.get('/', (req, res) => {
+//   createEmail().then(res => {
+//     console.log(res);
+//   }).catch((err) => {
+//     console.log(err);
+//   });
+//   res.end();
+// })
+
+router.get('/', (req,res) => {
+  let cars = [];
+  const rootHtml = HTMLParser.parse(htmlFile)
+  const divWithCars = rootHtml.querySelector('#auta');
+  const forms = divWithCars.querySelectorAll('form')
+  for (let i = 0; i < forms.length; i++) {
+    const p = forms[i].querySelector('p');
+    const input = p.querySelector('input');
+    const val = forms[i].querySelectorAll('input');
+    const inputValue = input.getAttribute('value');
+    const car = {};
+    car[inputValue] = parseInt(val[1].getAttribute('value'));
+    cars.push(car);
+  }
+
+  console.log('CARS:', cars);
+  let json = JSON.stringify(cars);
+  fs.writeFileSync('cars.json', json, 'utf8');
   res.end();
-})
+});
 
 // File upload
 router.post('/upload', (req, res) => {
   if (req.files) {
-    let personalInfoFile = req.files['personalInfoFile'];
+    let file = req.files['fileToUpload'];
 
     // If temporary directory doesnt exists create it
     if (!fs.existsSync(dir)) {
@@ -41,8 +64,8 @@ router.post('/upload', (req, res) => {
     }
 
     // Create write stream and save file to temp directory
-    let personalInfoWriteStream = fs.createWriteStream(dir + '/' + personalInfoFile.name);
-    personalInfoWriteStream.write(personalInfoFile.data, 'utf8');
+    let personalInfoWriteStream = fs.createWriteStream(dir + '/' + file.name);
+    personalInfoWriteStream.write(file.data, 'utf8');
     personalInfoWriteStream.on('error', (e) => {
       console.error('ERROR WITH WRITE STREAM', e);
     });
@@ -50,12 +73,13 @@ router.post('/upload', (req, res) => {
     personalInfoWriteStream.end();
     personalInfoWriteStream.on('finish', () => {
 
-    // TODO: create dir with name
-    copyFilesToFtp(dir + `/${personalInfoFile.name}`, '2020/05/' + personalInfoFile.name)
+    // TODO: take username from frontend and create directory in ftp
+    // Directory name is from request header
+    copyFilesToFtp(dir + `/${file.name}`, '2020/05/' + file.name)
       console.log('Personal Info file saved deleting file');
 
       // Delete file when is copied to FTP
-      fs.unlink(dir + `/${personalInfoFile.name}`, () => {
+      fs.unlink(dir + `/${file.name}`, () => {
         console.log('File successfully deleted');
       });
     });
