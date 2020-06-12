@@ -23,35 +23,35 @@ const htmlFile = fs.readFileSync('routes/cars.txt', 'utf-8');
 
 const client = new ftp.Client();
 
-// router.get('/', (req, res) => {
-//   createEmail().then(res => {
-//     console.log(res);
-//   }).catch((err) => {
-//     console.log(err);
-//   });
-//   res.end();
-// })
-
-router.get('/', (req,res) => {
-  let cars = [];
-  const rootHtml = HTMLParser.parse(htmlFile)
-  const divWithCars = rootHtml.querySelector('#auta');
-  const forms = divWithCars.querySelectorAll('form')
-  for (let i = 0; i < forms.length; i++) {
-    const p = forms[i].querySelector('p');
-    const input = p.querySelector('input');
-    const val = forms[i].querySelectorAll('input');
-    const inputValue = input.getAttribute('value');
-    const car = {};
-    car[inputValue] = parseInt(val[1].getAttribute('value'));
-    cars.push(car);
-  }
-
-  console.log('CARS:', cars);
-  let json = JSON.stringify(cars);
-  fs.writeFileSync('cars.json', json, 'utf8');
+router.get('/', (req, res) => {
+  createEmail().then(res => {
+    console.log(res);
+  }).catch((err) => {
+    console.log(err);
+  });
   res.end();
-});
+})
+
+// router.get('/', (req,res) => {
+//   let cars = [];
+//   const rootHtml = HTMLParser.parse(htmlFile)
+//   const divWithCars = rootHtml.querySelector('#auta');
+//   const forms = divWithCars.querySelectorAll('form')
+//   for (let i = 0; i < forms.length; i++) {
+//     const p = forms[i].querySelector('p');
+//     const input = p.querySelector('input');
+//     const val = forms[i].querySelectorAll('input');
+//     const inputValue = input.getAttribute('value');
+//     const car = {};
+//     car[inputValue] = parseInt(val[1].getAttribute('value'));
+//     cars.push(car);
+// }
+
+//   console.log('CARS:', cars);
+//   let json = JSON.stringify(cars);
+//   fs.writeFileSync('cars.json', json, 'utf8');
+//   res.end();
+// });
 
 // File upload
 router.post('/upload', (req, res) => {
@@ -223,7 +223,7 @@ transporter.verify(function(error, success) {
 
   // send mail with defined transport object
   let info = await transporter.sendMail({
-    from: '"Fred Foo 👻" <info@motozalozna.sk>', // sender address
+    from: '"Jakub Juhas" <info@motozalozna.sk>', // sender address
     to: "juhas.jugi@gmail.com", // list of receivers
     subject: "Hello ✔", // Subject line
     text: "Hello world?", // plain text body
