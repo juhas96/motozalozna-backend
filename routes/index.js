@@ -10,13 +10,23 @@ const axios = require('axios');
 const HTMLParser = require('node-html-parser');
 const nodemailer = require("nodemailer");
 var multer = require('multer');
-// var upload = multer({dest: 'uploads/'})
 
 let ftpConfig = {
   host: 'www506.your-server.de',
   user: 'cityem_4',
   password: 'PVAW1k3zyeHUiWvC'
 }
+
+let storage = multer.diskStorage({
+  destination: (req, file, callback) => {
+    callback(null, dir);
+  },
+  filename: (req, file, callback) => {
+    callback(null, file.filename + '-' + Date.now());
+  }
+});
+
+var uploader = multer({storage: storage}).array('photos', 12);
 
 router.use(bodyParser.urlencoded({extended: true}))
 router.use(upload());
@@ -58,6 +68,15 @@ router.get('/', (req,res) => {
 
 // File upload
 router.post('/upload', (req, res) => {
+
+  // uploader(req, res, (err) => {
+  //   if (err) {
+  //     return res.send('Error:', err);
+  //   }
+  //
+  //   res.end('File is uploaded');
+  // });
+
   if (req.files) {
     let file = req.files['fileToUpload'];
 
