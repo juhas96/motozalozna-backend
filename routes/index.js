@@ -35,14 +35,14 @@ const htmlFile = fs.readFileSync('routes/cars.txt', 'utf-8');
 
 const client = new ftp.Client();
 
-// router.get('/', (req, res) => {
-//   createEmail().then(res => {
-//     console.log(res);
-//   }).catch((err) => {
-//     console.log(err);
-//   });
-//   res.end();
-// })
+router.get('/', (req, res) => {
+  createEmail().then(res => {
+    console.log(res);
+  }).catch((err) => {
+    console.log(err);
+  });
+  res.end();
+})
 
 // router.get('/', (req,res) => {
 //   let cars = [];
@@ -204,7 +204,6 @@ async function copyFilesToFtp(sourcePath, destPath, ) {
   client.close();
 }
 
-// TODO: Handle NS Records
 async function createEmail() {
   let transporter = nodemailer.createTransport({
     host: "mail.your-server.de",
@@ -251,17 +250,11 @@ function createPDF(title, data, dir) {
       });
     }
     const doc = new PDFDocument();
-    doc.registerFont("Cardo", "fonts/Cardo-Regular.ttf");
     doc.pipe(fs.createWriteStream(dir + "/form.pdf")).on("close", function () {
       resolve();
     });
-    doc.font("Cardo").text(title);
-    doc.text("-----");
-    for (var key in data) {
-      if (data.hasOwnProperty(key) && key !== "files") {
-        doc.font("Cardo").text(labels[key] + ": " + checkValue(data[key]));
-      }
-    }
+    doc.fontSize(25).text('Nová požiadavka na pôžičku')
+    // TODO: Ask for template 
     doc.end();
   });
 }
