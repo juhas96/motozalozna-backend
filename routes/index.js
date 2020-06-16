@@ -9,6 +9,8 @@ var FormData = require('form-data');
 const axios = require('axios');
 const HTMLParser = require('node-html-parser');
 const nodemailer = require("nodemailer");
+var multer = require('multer');
+// var upload = multer({dest: 'uploads/'})
 
 let ftpConfig = {
   host: 'www506.your-server.de',
@@ -23,35 +25,36 @@ const htmlFile = fs.readFileSync('routes/cars.txt', 'utf-8');
 
 const client = new ftp.Client();
 
-router.get('/', (req, res) => {
-  createEmail().then(res => {
-    console.log(res);
-  }).catch((err) => {
-    console.log(err);
-  });
-  res.end();
-})
-
-// router.get('/', (req,res) => {
-//   let cars = [];
-//   const rootHtml = HTMLParser.parse(htmlFile)
-//   const divWithCars = rootHtml.querySelector('#auta');
-//   const forms = divWithCars.querySelectorAll('form')
-//   for (let i = 0; i < forms.length; i++) {
-//     const p = forms[i].querySelector('p');
-//     const input = p.querySelector('input');
-//     const val = forms[i].querySelectorAll('input');
-//     const inputValue = input.getAttribute('value');
-//     const car = {};
-//     car[inputValue] = parseInt(val[1].getAttribute('value'));
-//     cars.push(car);
-// }
-
-//   console.log('CARS:', cars);
-//   let json = JSON.stringify(cars);
-//   fs.writeFileSync('cars.json', json, 'utf8');
+// router.get('/', (req, res) => {
+//   createEmail().then(res => {
+//     console.log(res);
+//   }).catch((err) => {
+//     console.log(err);
+//   });
 //   res.end();
-// });
+// })
+
+router.get('/', (req,res) => {
+  let cars = [];
+  const rootHtml = HTMLParser.parse(htmlFile)
+  const divWithCars = rootHtml.querySelector('#auta');
+  const forms = divWithCars.querySelectorAll('form')
+  for (let i = 0; i < forms.length; i++) {
+    const p = forms[i].querySelector('p');
+    const input = p.querySelector('input');
+    const val = forms[i].querySelectorAll('input');
+    const inputValue = input.getAttribute('value');
+    const car = {};
+    car['model'] = inputValue
+    car['key'] = parseInt(val[1].getAttribute('value'));
+    cars.push(car);
+}
+
+  console.log('CARS:', cars);
+  let json = JSON.stringify(cars);
+  fs.writeFileSync('cars.json', json, 'utf8');
+  res.end();
+});
 
 // File upload
 router.post('/upload', (req, res) => {
@@ -162,7 +165,7 @@ function formDataMapper(formData, data) {
   formData.append('vek', data.vek);
   formData.append('pocetkm', data.pocetkm);
   formData.append('dovezene', 0);
-  formData.append('auto', 168);
+  formData.append('auto', data.auto);
 }
 
 
@@ -180,25 +183,6 @@ async function copyFilesToFtp(sourcePath, destPath, ) {
     console.log(err);
   }
   client.close();
-}
-
-function checkIfCarIsStolen(ecv) {
-  var bodyFormData = new FormData();
-  bodyFormData.append('ec', ecv);
-
-  axios.post('https://www.minv.sk/?odcudzene-mot-vozidla',
-    bodyFormData,
-    {headers: {'Content-Type': 'multipart/form-data; boundary=' + bodyFormData.getBoundary()}}
-  ).then(result => {
-    const root = HTMLParser.parse(result.data);
-    const tableWithResult = root.querySelector('.tabulka4');
-    const spanWithResult = tableWithResult.querySelector('.tddark');
-    var numberOfRecordsString = spanWithResult.firstChild.rawText;
-    numberOfRecordsString = numberOfRecordsString.replace(/\D/g, '');
-    return numberOfRecordsString;
-  }).catch((err) => {
-    console.error(err);
-  })
 }
 
 async function createEmail() {
