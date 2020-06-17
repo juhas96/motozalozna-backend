@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var fs = require('fs');
-var upload = require('express-fileupload');
+// var upload = require('express-fileupload');
 var bodyParser = require('body-parser');
 var dir = './tmp'
 var ftp = require('basic-ftp');
@@ -10,6 +10,8 @@ const axios = require('axios');
 const HTMLParser = require('node-html-parser');
 const nodemailer = require("nodemailer");
 var multer = require('multer');
+// const { path } = require('pdfkit/js/mixins/vector');
+const paths = require('path');
 
 let ftpConfig = {
   host: 'www506.your-server.de',
@@ -22,27 +24,27 @@ let storage = multer.diskStorage({
     callback(null, dir);
   },
   filename: (req, file, callback) => {
-    callback(null, file.filename + '-' + Date.now());
+    callback(null, file.filedName + '-' + Date.now() + paths.extname(file.originalname));
   }
 });
 
-var uploader = multer({storage: storage}).array('photos', 12);
+var upload = multer({storage: storage}).array('files', 20);
 
 router.use(bodyParser.urlencoded({extended: true}))
-router.use(upload());
-const htmlFile = fs.readFileSync('routes/cars.txt', 'utf-8');
+// router.use(upload());
+// const htmlFile = fs.readFileSync('routes/cars.txt', 'utf-8');
 
 
 const client = new ftp.Client();
 
-router.get('/', (req, res) => {
-  createEmail().then(res => {
-    console.log(res);
-  }).catch((err) => {
-    console.log(err);
-  });
-  res.end();
-})
+// router.get('/', (req, res) => {
+//   createEmail().then(res => {
+//     console.log(res);
+//   }).catch((err) => {
+//     console.log(err);
+//   });
+//   res.end();
+// })
 
 // router.get('/', (req,res) => {
 //   let cars = [];
@@ -68,52 +70,71 @@ router.get('/', (req, res) => {
 
 // File upload
 router.post('/upload', (req, res) => {
-
-  // uploader(req, res, (err) => {
-  //   if (err) {
-  //     return res.send('Error:', err);
-  //   }
-  //
-  //   res.end('File is uploaded');
-  // });
-
-  if (req.files) {
-    let file = req.files['fileToUpload'];
-
-    // If temporary directory doesnt exists create it
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir);
-    }
-
-    // Create write stream and save file to temp directory
-    let personalInfoWriteStream = fs.createWriteStream(dir + '/' + file.name);
-    personalInfoWriteStream.write(file.data, 'utf8');
-    personalInfoWriteStream.on('error', (e) => {
-      console.error('ERROR WITH WRITE STREAM', e);
-    });
-
-    personalInfoWriteStream.end();
-    personalInfoWriteStream.on('finish', () => {
-
-    // TODO: take username from frontend and create directory in ftp
-    // Directory name is from request header
-    copyFilesToFtp(dir + `/${file.name}`, '2020/05/' + file.name)
-      console.log('Personal Info file saved deleting file');
-
-      // Delete file when is copied to FTP
-      fs.unlink(dir + `/${file.name}`, () => {
-        console.log('File successfully deleted');
-      });
-    });
-  } else {
-    res.send('No files provided');
-    res.end();
+  let files = req.files;
+  // If temporary directory doesn't exists create it
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir);
   }
+
+  upload(req, res, (err) => {
+    if (err instanceof multer.MulterError) {
+      return res.status(500).json(err);
+    } else if (err) {
+      return res.status(500).json(err);
+    }
+    console.log('FILE: ', req.file);
+    console.log('FILES', req.files);
+    return res.status(200).send('Success!');
+  });
+
+  //TODO: copyFilesViaFtp and delete all uploaded files
 });
+// router.post('/upload', (req, res) => {
+
+//   // uploader(req, res, (err) => {
+//   //   if (err) {
+//   //     return res.send('Error:', err);
+//   //   }
+//   //
+//   //   res.end('File is uploaded');
+//   // });
+
+//   if (req.files) {
+//     let file = req.files['fileToUpload'];
+
+//     // If temporary directory doesnt exists create it
+//     if (!fs.existsSync(dir)) {
+//       fs.mkdirSync(dir);
+//     }
+
+//     // Create write stream and save file to temp directory
+//     let personalInfoWriteStream = fs.createWriteStream(dir + '/' + file.name);
+//     personalInfoWriteStream.write(file.data, 'utf8');
+//     personalInfoWriteStream.on('error', (e) => {
+//       console.error('ERROR WITH WRITE STREAM', e);
+//     });
+
+//     personalInfoWriteStream.end();
+//     personalInfoWriteStream.on('finish', () => {
+
+//     // TODO: take username from frontend and create directory in ftp
+//     // Directory name is from request header
+//     copyFilesToFtp(dir + `/${file.name}`, '2020/05/' + file.name)
+//       console.log('Personal Info file saved deleting file');
+
+//       // Delete file when is copied to FTP
+//       fs.unlink(dir + `/${file.name}`, () => {
+//         console.log('File successfully deleted');
+//       });
+//     });
+//   } else {
+//     res.send('No files provided');
+//     res.end();
+//   }
+// });
 
 // Price check
 router.post('/check_price', (req, res) => {
-  console.log('tadyy')
   if (req.body) {
     var bodyFormData = new FormData();
     var carPrice = 0;
