@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+var multiparty = require('multiparty');
 var fs = require('fs');
 // var upload = require('express-fileupload');
 var bodyParser = require('body-parser');
@@ -10,7 +11,7 @@ const axios = require('axios');
 const HTMLParser = require('node-html-parser');
 const nodemailer = require("nodemailer");
 var multer = require('multer');
-// const { path } = require('pdfkit/js/mixins/vector');
+const PDFDocument = require('pdfkit')
 const paths = require('path');
 
 let ftpConfig = {
@@ -31,20 +32,7 @@ let storage = multer.diskStorage({
 var upload = multer({storage: storage}).array('files', 20);
 
 router.use(bodyParser.urlencoded({extended: true}))
-// router.use(upload());
-// const htmlFile = fs.readFileSync('routes/cars.txt', 'utf-8');
-
-
 const client = new ftp.Client();
-
-// router.get('/', (req, res) => {
-//   createEmail().then(res => {
-//     console.log(res);
-//   }).catch((err) => {
-//     console.log(err);
-//   });
-//   res.end();
-// })
 
 // router.get('/', (req,res) => {
 //   let cars = [];
@@ -71,6 +59,10 @@ const client = new ftp.Client();
 // File upload
 router.post('/upload', (req, res) => {
   let files = req.files;
+  var form = new multiparty.Form();
+  form.parse(req, (err, fields, files) => {
+    createPDF('New PDF', fields, '../pdfs');
+  })
   // If temporary directory doesn't exists create it
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir);
@@ -82,40 +74,11 @@ router.post('/upload', (req, res) => {
     } else if (err) {
       return res.status(500).json(err);
     }
-    console.log('FILE: ', req.file);
-    console.log('FILES', req.files);
     return res.status(200).send('Success!');
   });
 
   //TODO: copyFilesViaFtp and delete all uploaded files
 });
-// router.post('/upload', (req, res) => {
-
-//   // uploader(req, res, (err) => {
-//   //   if (err) {
-//   //     return res.send('Error:', err);
-//   //   }
-//   //
-//   //   res.end('File is uploaded');
-//   // });
-
-//   if (req.files) {
-//     let file = req.files['fileToUpload'];
-
-//     // If temporary directory doesnt exists create it
-//     if (!fs.existsSync(dir)) {
-//       fs.mkdirSync(dir);
-//     }
-
-//     // Create write stream and save file to temp directory
-//     let personalInfoWriteStream = fs.createWriteStream(dir + '/' + file.name);
-//     personalInfoWriteStream.write(file.data, 'utf8');
-//     personalInfoWriteStream.on('error', (e) => {
-//       console.error('ERROR WITH WRITE STREAM', e);
-//     });
-
-//     personalInfoWriteStream.end();
-//     personalInfoWriteStream.on('finish', () => {
 
 //     // TODO: take username from frontend and create directory in ftp
 //     // Directory name is from request header
@@ -127,11 +90,6 @@ router.post('/upload', (req, res) => {
 //         console.log('File successfully deleted');
 //       });
 //     });
-//   } else {
-//     res.send('No files provided');
-//     res.end();
-//   }
-// });
 
 // Price check
 router.post('/check_price', (req, res) => {
@@ -262,22 +220,24 @@ transporter.verify(function(error, success) {
 }
 
 function createPDF(title, data, dir) {
-  return new Promise(function (resolve, reject) {
-    if (!fs.existsSync(dir)) {
-      fs.mkdir(dir, { recursive: true }, (error) => {
-        if (error) {
-          reject(error);
-        }
-      });
-    }
-    const doc = new PDFDocument();
-    doc.pipe(fs.createWriteStream(dir + "/form.pdf")).on("close", function () {
-      resolve();
+    // TODO: create DIR if not exists
+    console.log('CREATING PDF')
+    const doc = new PDFDocument;
+    doc.pipe(fs.createWriteStream("form.pdf"));
+    // draw some text
+    doc.fontSize(25).text('Nová požiadavka na pozicku', {
+      align: 'center' 
     });
-    doc.fontSize(25).text('Nová požiadavka na pôžičku')
-    // TODO: Ask for template 
+
+    doc.fontSize(14).text(`Meno: ${data.krstne_meno}`);
+    doc.fontSize(14).text(`Priezvisko: ${data.priezvisko}`);
+    doc.fontSize(14).text(`Email: ${data.email}`);
+    doc.fontSize(14).text(`Telefonne cislo: ${data.telefonne_cislo}`);
+    doc.fontSize(14).text(`Vozidlo: ${data.autoName}`);
+    doc.fontSize(14).text(`ECV: ${data.ec}`);
+    doc.fontSize(14).text(`Vyska pozicky: ${data.vysledna_pozicka}`);
+    doc.fontSize(14).text(`Dlzka pozicky: ${data.dlzka_pozicky}`);
     doc.end();
-  });
 }
 
 module.exports = router;
