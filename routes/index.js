@@ -60,7 +60,8 @@ router.post('/upload', (req, res) => {
           first_name: data.krstne_meno.toString(),
           last_name: data.priezvisko.toString(),
           email: data.email.toString(),
-          password: User.generateHash(password),
+          password: password,
+          // password: User.generateHash(password),
           phone_number: data.telefonne_cislo.toString()
         }).then(user => {
           Loan.create(LoanMapper.mapLoanData(data, user.id))
