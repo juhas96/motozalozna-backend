@@ -14,6 +14,7 @@
     "debug": "~2.6.9",
     "express": "~4.16.1",
     "express-fileupload": "^1.1.7-alpha.3",
+    "foreman": "^3.0.1",
     "form-data": "^3.0.0",
     "generate-password": "^1.5.1",
     "http-errors": "~1.6.3",
@@ -28,7 +29,6 @@
     "nodemon": "^2.0.4",
     "pdfkit": "^0.11.0",
     "pug": "2.0.0-beta11",
-    "sequelize": "^5.21.13",
-    "dotenv": "^8.2.0"
+    "sequelize": "^5.21.13"
   }
 }

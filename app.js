@@ -15,10 +15,10 @@ const User = require('./models/user.model');
 
 var app = express();
 
-const result = require('dotenv').config();
-if (result.error) {
-  throw result.error;
-}
+// const result = require('dotenv').config();
+// if (result.error) {
+//   throw result.error;
+// }
 
 
 
