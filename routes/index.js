@@ -9,7 +9,7 @@ var ftp = require('basic-ftp');
 var FormData = require('form-data');
 const axios = require('axios');
 const HTMLParser = require('node-html-parser');
-require('dotenv').config();
+// require('dotenv').config();
 const nodemailer = require("nodemailer");
 var multer = require('multer');
 const PDFDocument = require('pdfkit')
