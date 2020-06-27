@@ -4,11 +4,23 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var cors = require('cors');
-
+// const db = require('./models');
 var indexRouter = require('./routes/index');
-var loanRouter = require('./routes/loanRouter');
+var loanRouter = require('./routes/loan.routes');
+const sequelize = require('./utils/database');
+// var loanRouter = require('./routes/loanRouter');
+
+const Loan = require('./models/loan.model');
+const User = require('./models/user.model');
 
 var app = express();
+
+const result = require('dotenv').config();
+if (result.error) {
+  throw result.error;
+}
+
+
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -22,7 +34,18 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
-app.use('/loan', loanRouter);
+app.use('/loans', loanRouter);
+// app.use('/loan', loanRouter);
+
+Loan.belongsTo(User, {constraints: true, onDelete: 'CASCADE'});
+User.hasMany(Loan);
+
+// DB
+sequelize.sync().then(() => {
+  console.log('Re-sync db.');
+}).catch(err => {
+  console.log(err);
+});
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
