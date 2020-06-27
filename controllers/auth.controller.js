@@ -10,9 +10,13 @@ exports.login = (req, res) => {
                 bcrypt.compareSync(password, user.password)
                     .then(result => {
                         if (result) {
-                            return res.redirect('/');
+                            return res.status(200).send({
+                                message: 'Login success'
+                            })
                         } else {
-                            return res.redirect('/login');
+                            return res.status(500).send({
+                                message: 'Cannot log in'
+                            })
                         }
                     })
             } else {
