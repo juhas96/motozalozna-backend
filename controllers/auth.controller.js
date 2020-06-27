@@ -23,11 +23,3 @@ exports.login = (req, res) => {
             console.log(err);
         })
 }
-
-exports.generateHash = (password) => {
-    return bcrypt.hashSync(password, bcrypt.genSaltSync(8), null);
-}
-
-function validPassword(password) {
-    return bcrypt.compareSync(password, this.password);
-}

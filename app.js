@@ -7,6 +7,7 @@ var cors = require('cors');
 // const db = require('./models');
 var indexRouter = require('./routes/index');
 var loanRouter = require('./routes/loan.routes');
+var authRouter = require('./routes/auth.router');
 const sequelize = require('./utils/database');
 const swaggerJsDoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
@@ -54,6 +55,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/api/form', indexRouter);
 app.use('/api/loans', loanRouter);
+app.use('/api/auth', authRouter);
 // app.use('/loan', loanRouter);
 
 Loan.belongsTo(User, {constraints: true, onDelete: 'CASCADE'});

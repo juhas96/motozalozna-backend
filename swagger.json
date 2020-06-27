@@ -23,9 +23,41 @@
   }, {
     "name" : "form",
     "description" : "All endpoints for FORM, check price, stolen etc."
+  }, {
+    "name" : "auth",
+    "description" : "All endpoints for authentication"
   } ],
   "schemes" : [ "http" ],
   "paths" : {
+    "/auth/login" : {
+      "post" : {
+        "tags" : [ "auth" ],
+        "summary" : "Login",
+        "operationId" : "login",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "email",
+          "in" : "body",
+          "description" : "User email",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "password",
+          "in" : "body",
+          "description" : "User pass",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "login was successful"
+          },
+          "500" : {
+            "description" : "server error"
+          }
+        }
+      }
+    },
     "/loans" : {
       "get" : {
         "tags" : [ "loans" ],
