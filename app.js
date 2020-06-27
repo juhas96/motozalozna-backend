@@ -8,12 +8,31 @@ var cors = require('cors');
 var indexRouter = require('./routes/index');
 var loanRouter = require('./routes/loan.routes');
 const sequelize = require('./utils/database');
-// var loanRouter = require('./routes/loanRouter');
+const swaggerJsDoc = require('swagger-jsdoc');
+const swaggerUi = require('swagger-ui-express');
+var swaggerDocument = require('./swagger.json');
+const swaggerOptions = {
+  swaggerDefinition: {
+    info: {
+      title: 'Motozalozna API',
+      description: 'All backend endpoints',
+      contact: {
+        name: 'Jakub Juhas'
+      },
+      servers: ['http://localhost:5000', 'https://motozalozna-backend.herokuapp.com']
+    }
+  },
+  apis: ['routes/index.js', 'routes/loan.routes.js']
+}
+
+const swaggerDocs = swaggerJsDoc(swaggerOptions);
 
 const Loan = require('./models/loan.model');
 const User = require('./models/user.model');
 
 var app = express();
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // const result = require('dotenv').config();
 // if (result.error) {
@@ -33,8 +52,8 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', indexRouter);
-app.use('/loans', loanRouter);
+app.use('/api/form', indexRouter);
+app.use('/api/loans', loanRouter);
 // app.use('/loan', loanRouter);
 
 Loan.belongsTo(User, {constraints: true, onDelete: 'CASCADE'});

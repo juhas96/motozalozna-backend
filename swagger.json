@@ -1,0 +1,333 @@
+{
+  "swagger" : "2.0",
+  "info" : {
+    "description" : "Motozalozna backend API",
+    "version" : "0.0.1",
+    "title" : "Motozalozna API",
+    "contact" : {
+      "email" : "juhas.jugi@gmail.com"
+    },
+    "license" : {
+      "name" : "Apache 2.0",
+      "url" : "http://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+  },
+  "host" : "motozalozna-backend.herokuapp.com",
+  "basePath" : "/api",
+  "tags" : [ {
+    "name" : "loans",
+    "description" : "All endpoints for loans"
+  }, {
+    "name" : "users",
+    "description" : "All endpoints for user"
+  }, {
+    "name" : "form",
+    "description" : "All endpoints for FORM, check price, stolen etc."
+  } ],
+  "schemes" : [ "http" ],
+  "paths" : {
+    "/loans" : {
+      "get" : {
+        "tags" : [ "loans" ],
+        "summary" : "Returs all Loans with user objects",
+        "operationId" : "findAll",
+        "produces" : [ "application/json" ],
+        "parameters" : [ ],
+        "responses" : {
+          "200" : {
+            "description" : "all results",
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/definitions/Loan"
+              }
+            }
+          },
+          "500" : {
+            "description" : "server error"
+          }
+        }
+      }
+    },
+    "/loans/by_user" : {
+      "get" : {
+        "tags" : [ "loans" ],
+        "summary" : "Returs all Loans for specific user",
+        "operationId" : "byUser",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "user_id",
+          "in" : "header",
+          "description" : "The user ID",
+          "required" : true,
+          "type" : "integer"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "all loans for single user",
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/definitions/Loan"
+              }
+            }
+          },
+          "500" : {
+            "description" : "server error"
+          }
+        }
+      }
+    },
+    "/form/upload" : {
+      "post" : {
+        "tags" : [ "form" ],
+        "summary" : "Returs all Loans for specific user",
+        "operationId" : "upload",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "form-data",
+          "description" : "All data from form.",
+          "required" : false,
+          "schema" : {
+            "type" : "object"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "success"
+          },
+          "500" : {
+            "description" : "server error"
+          }
+        }
+      }
+    },
+    "/form/check_price" : {
+      "post" : {
+        "tags" : [ "form" ],
+        "summary" : "Returs price of car",
+        "operationId" : "checkPrice",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "form-data",
+          "description" : "All data from car form.",
+          "required" : false,
+          "schema" : {
+            "$ref" : "#/definitions/Price_Check"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "return price"
+          },
+          "500" : {
+            "description" : "server error"
+          }
+        }
+      }
+    },
+    "/form/check_stolen" : {
+      "post" : {
+        "tags" : [ "form" ],
+        "summary" : "Returs if car is stolen",
+        "operationId" : "checkStolen",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "ecv",
+          "description" : "ECV of car.",
+          "required" : false,
+          "schema" : {
+            "$ref" : "#/definitions/Stolen_Check"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "return number value"
+          },
+          "500" : {
+            "description" : "server error"
+          }
+        }
+      }
+    }
+  },
+  "definitions" : {
+    "Loan" : {
+      "type" : "object",
+      "required" : [ "id" ],
+      "properties" : {
+        "id" : {
+          "type" : "string",
+          "example" : "1"
+        },
+        "loan_until" : {
+          "type" : "string",
+          "format" : "date",
+          "example" : "2020-06-26T10:39:55.000Z"
+        },
+        "loan_price" : {
+          "type" : "number",
+          "example" : 12000.0
+        },
+        "loan_length" : {
+          "type" : "string",
+          "example" : "2 tyzdne"
+        },
+        "interest_paid" : {
+          "type" : "boolean",
+          "example" : false
+        },
+        "car_bodywork_type" : {
+          "type" : "string",
+          "example" : "Hatchbag / Sedan"
+        },
+        "car_fuel_type" : {
+          "type" : "string",
+          "example" : "Benzin"
+        },
+        "car_axle_type" : {
+          "type" : "string",
+          "example" : "Jednej napravy"
+        },
+        "car_gearbox_type" : {
+          "type" : "string",
+          "example" : "Manualna"
+        },
+        "car_power" : {
+          "type" : "number",
+          "example" : 110.0
+        },
+        "car_years_old" : {
+          "type" : "number",
+          "example" : 5.0
+        },
+        "car_ecv" : {
+          "type" : "string",
+          "example" : "VT657CG"
+        },
+        "car_km" : {
+          "type" : "number",
+          "example" : 120000.0
+        },
+        "car_damaged_varnish" : {
+          "type" : "boolean",
+          "example" : false
+        },
+        "car_damaged_bodywork" : {
+          "type" : "boolean",
+          "example" : false
+        },
+        "car_damaged_axle" : {
+          "type" : "boolean",
+          "example" : false
+        },
+        "car_damaged_interior" : {
+          "type" : "boolean",
+          "example" : false
+        },
+        "car_damaged_tires" : {
+          "type" : "boolean",
+          "example" : false
+        },
+        "car_damaged_window" : {
+          "type" : "boolean",
+          "example" : false
+        },
+        "car_price" : {
+          "type" : "number",
+          "example" : 12000.0
+        },
+        "interest" : {
+          "type" : "number",
+          "example" : 400.0
+        },
+        "createdAt" : {
+          "type" : "string",
+          "example" : "2020-06-26T10:39:55.000Z"
+        },
+        "updatedAt" : {
+          "type" : "string",
+          "example" : "2020-06-26T10:39:55.000Z"
+        },
+        "userId" : {
+          "type" : "number",
+          "example" : 1.0
+        },
+        "user" : {
+          "$ref" : "#/definitions/User"
+        }
+      }
+    },
+    "User" : {
+      "properties" : {
+        "id" : {
+          "type" : "number",
+          "example" : 1.0
+        },
+        "first_name" : {
+          "type" : "string",
+          "example" : "Jakub"
+        },
+        "last_name" : {
+          "type" : "string",
+          "example" : "Juhás"
+        },
+        "email" : {
+          "type" : "string",
+          "example" : "juhas.jugi@gmail.com"
+        },
+        "phone_number" : {
+          "type" : "string",
+          "example" : "0949444555"
+        }
+      }
+    },
+    "Price_Check" : {
+      "properties" : {
+        "karoseria" : {
+          "type" : "number",
+          "example" : 1.0
+        },
+        "palivo" : {
+          "type" : "number",
+          "example" : 1.0
+        },
+        "pohon" : {
+          "type" : "number",
+          "example" : 1.0
+        },
+        "prevodovka" : {
+          "type" : "number",
+          "example" : 0.0
+        },
+        "vykon" : {
+          "type" : "number",
+          "example" : 110.0
+        },
+        "vek" : {
+          "type" : "number",
+          "example" : 3.0
+        },
+        "pocetkm" : {
+          "type" : "number",
+          "example" : 20000.0
+        },
+        "auto" : {
+          "type" : "number",
+          "example" : 168.0
+        }
+      }
+    },
+    "Stolen_Check" : {
+      "properties" : {
+        "ecv" : {
+          "type" : "string",
+          "example" : "VT657CG"
+        }
+      }
+    }
+  }
+}
