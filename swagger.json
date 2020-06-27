@@ -99,7 +99,7 @@
         } ],
         "responses" : {
           "200" : {
-            "description" : "successfully payed",
+            "description" : "successfully payed"
           },
           "500" : {
             "description" : "server error"
