@@ -9,11 +9,12 @@ var ftp = require('basic-ftp');
 var FormData = require('form-data');
 const axios = require('axios');
 const HTMLParser = require('node-html-parser');
-// require('dotenv').config();
+require('dotenv').config();
 const nodemailer = require("nodemailer");
 var multer = require('multer');
 const PDFDocument = require('pdfkit')
 const paths = require('path');
+const bcrypt = require('bcrypt');
 var passwordGenerator = require('generate-password');
 
 // TODO: refactor whole file to more classes
@@ -50,6 +51,7 @@ router.post('/upload', (req, res) => {
     });
 
     console.log('PASSSWORD IS: ', password)
+    createEmail(data);
 
     // Find user if not exists create user and assignee userId to new created Loan
     let user;
@@ -60,8 +62,8 @@ router.post('/upload', (req, res) => {
           first_name: data.krstne_meno.toString(),
           last_name: data.priezvisko.toString(),
           email: data.email.toString(),
-          password: password,
-          // password: User.generateHash(password),
+          // password: password,
+          password: bcrypt.hashSync(password, 10),
           phone_number: data.telefonne_cislo.toString()
         }).then(user => {
           Loan.create(LoanMapper.mapLoanData(data, user.id))
@@ -211,7 +213,7 @@ async function copyFilesToFtp(sourcePath, destPath, ) {
   client.close();
 }
 
-async function createEmail() {
+async function createEmail(data) {
   let transporter = nodemailer.createTransport({
     host: process.env.EMAIL_HOST,
     port: process.env.EMAIL_PORT,
@@ -236,8 +238,8 @@ transporter.verify(function(error, success) {
     from: '"Jakub Juhas" <info@motozalozna.sk>', // sender address
     to: "juhas.jugi@gmail.com", // list of receivers
     subject: "Hello ✔", // Subject line
-    text: "Hello world?", // plain text body
-    html: "<b>Hello world?</b>", // html body
+    text: 'pass is:' + data.toString(), // plain text body
+    html: "<b>PASS IS: </b>" + data.toString(), // html body
   });
 
   console.log("Message sent: %s", info.messageId);

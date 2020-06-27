@@ -58,6 +58,22 @@
         }
       }
     },
+    "/auth/logout" : {
+      "delete" : {
+        "tags" : [ "auth" ],
+        "summary" : "Logout",
+        "operationId" : "logout",
+        "produces" : [ "application/json" ],
+        "responses" : {
+          "204" : {
+            "description" : "logout was successful"
+          },
+          "500" : {
+            "description" : "server error"
+          }
+        }
+      }
+    },
     "/loans" : {
       "get" : {
         "tags" : [ "loans" ],
