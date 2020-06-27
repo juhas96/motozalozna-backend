@@ -78,6 +78,35 @@
         }
       }
     },
+    "/loans/pay" : {
+      "get" : {
+        "tags" : [ "loans" ],
+        "summary" : "Handle pay callback from frontEnd",
+        "operationId" : "pay",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "stripeTokenId",
+          "in" : "body",
+          "description" : "TOKEN ID",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name": "price",
+          "in": "body",
+          "description": "Price to charge",
+          "required": true,
+          "type": "number"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successfully payed",
+          },
+          "500" : {
+            "description" : "server error"
+          }
+        }
+      }
+    },
     "/form/upload" : {
       "post" : {
         "tags" : [ "form" ],
