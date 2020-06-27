@@ -111,7 +111,7 @@
       }
     },
     "/loans/pay" : {
-      "get" : {
+      "post" : {
         "tags" : [ "loans" ],
         "summary" : "Handle pay callback from frontEnd",
         "operationId" : "pay",
