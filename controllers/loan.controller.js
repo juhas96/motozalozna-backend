@@ -1,5 +1,8 @@
 const Loan = require('../models/loan.model');
 const loanMapper = require('../mapper/loan.mapper');
+const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+const stripePublicKey = process.env.STRIPE_PUBLIC_KEY;
+const stripe = require('stripe')(stripeSecretKey);
 
 // Create and save Loan
 // Create endpoint is not needed
@@ -51,6 +54,24 @@ exports.findAllByUserId = (req, res) => {
                 message: err.message || 'Some error occurred while retrieving Loans'
             });
         });
+};
+
+exports.pay = (req, res) => {
+    const price = req.body.price;
+    stripe.charges.create({
+        amount: price,
+        source: req.body.stripeTokenId,
+        currency: 'eur'
+    })
+    .then(response => {
+        // TODO: znizit sumu o ktoru user zaplatil danu pozicku
+        res.json({message: 'Successfully charged'});
+    })
+    .catch(err => {
+        res.status(500).send({
+            message: err.message
+        });
+    })
 };
 
 // Update a Loan by the ID in the request
