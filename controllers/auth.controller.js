@@ -36,13 +36,14 @@ exports.authenticateToken = (req, res, next) => {
 }
 
 function generateAccessToken(userEmail) {
-    return jwt.sign(email, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '30m'});
+    return jwt.sign(userEmail, process.env.ACCESS_TOKEN_SECRET)
 }
 
 exports.login = (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
-    const accessToken = generateAccessToken(email);
+    console.log(email)
+    const accessToken = generateAccessToken(email)
     // const refreshToken = jwt.sign(email, process.env.REFRESH_TOKEN_SECRET);
 
     User.findAll({where: {email: email}})
@@ -51,8 +52,8 @@ exports.login = (req, res) => {
                 bcrypt.compare(password, user[0].password)
                     .then(result => {
                         if (result) {
-                            setToken(res, refreshToken);
-                            res.json({accessToken: accessToken})
+                            setToken(res, accessToken);
+                            res.json({token: accessToken})
                         } else {
                             return res.status(500).send({
                                 message: 'Cannot log in'
