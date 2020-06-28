@@ -29,7 +29,7 @@ exports.findAll = (req, res) => {
 exports.findOne = (req, res) => {
     const id = req.params.id;
 
-    Loan.findByPk(id)
+    Loan.findByPk(id, {include: ['user']})
         .then(data => {
             res.send(data);
         })

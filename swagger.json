@@ -97,6 +97,35 @@
         }
       }
     },
+    "/loans/:id" : {
+      "get" : {
+        "tags" : [ "loans" ],
+        "summary" : "Returs single loan with user object",
+        "operationId" : "findOne",
+        "produces" : [ "application/json" ],
+        "parameters" : [{
+          "name" : "id",
+          "in" : "path",
+          "description" : "The loan ID",
+          "required" : true,
+          "type" : "integer"
+        }],
+        "responses" : {
+          "200" : {
+            "description" : "single result",
+            "schema" : {
+              "type" : "object",
+              "items" : {
+                "$ref" : "#/definitions/Loan"
+              }
+            }
+          },
+          "500" : {
+            "description" : "server error"
+          }
+        }
+      }
+    },
     "/loans/by_user" : {
       "get" : {
         "tags" : [ "loans" ],
