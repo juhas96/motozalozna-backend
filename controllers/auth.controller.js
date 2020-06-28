@@ -1,5 +1,4 @@
 const User = require("../models/user.model");
-const express = require('express');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 // require('dotenv').config();
@@ -53,7 +52,7 @@ exports.login = (req, res) => {
                     .then(result => {
                         if (result) {
                             setToken(res, accessToken);
-                            res.json({token: accessToken})
+                            res.json({token: accessToken, userId: user[0].id})
                         } else {
                             return res.status(500).send({
                                 message: 'Cannot log in'
