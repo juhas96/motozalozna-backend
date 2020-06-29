@@ -114,11 +114,6 @@ router.post('/upload', (req, res) => {
 
   //TODO: copyFilesViaFtp and delete all uploaded files
 
-  // MARK: save loan and user to database
-
-
-
-
 });
 
 //     // TODO: take username from frontend and create directory in ftp

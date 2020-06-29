@@ -5,12 +5,6 @@ const stripePublicKey = process.env.STRIPE_PUBLIC_KEY;
 const stripe = require('stripe')(stripeSecretKey);
 const Dinero = require('dinero.js');
 
-// Create and save Loan
-// Create endpoint is not needed
-// exports.create = (req, res) => {
-
-// };
-
 // Retrieve all Loans from database
 exports.findAll = (req, res) => {
     Loan.findAll({
@@ -79,27 +73,46 @@ exports.pay = (req, res) => {
                 if (userPayed.lessThan(currentInterestPrice)) {
                     currentInterestPrice = currentInterestPrice.subtract(userPayed);
                     loan.interest = currentInterestPrice.getAmount();
-                    // Save new interest to DB
+                    Loan.update(
+                        {interest: loan.interest},
+                        {where: {id: loan.id}
+                    })
+                    .then(() => {
+                            console.log('Successfully updated record with id: ' + loan.id);
+                    })
+                    .catch(err => {
+                            console.log(err);
+                    })
                 } else if (userPayed.greaterThanOrEqual(currentInterestPrice)) {
                     // subtract userPayed by interest, rest subtract from loanPrice
                     userPayed = userPayed.subtract(currentInterestPrice);
 
                     currentInterestPrice = currentInterestPrice.subtract(Dinero({amount: currentInterestPrice.getAmount(), currency: 'EUR', precision: 2}));
-                    // Save new interest to DB, should equals to 0
 
                     currentLoanPrice = currentLoanPrice.subtract(userPayed);
 
-                    // Save new currentLoanPrice to DB, test if is >= 0
-
+                    // if currentLoanPrice == 0, loan is fully payed
                     if (currentLoanPrice.isZero()) {
                         loan.interest_paid = true;
                     }
 
+                    // Save new loan object to DB, interest should equals to 0
                     loan.interest = 0;
                     loan.loan_price = currentLoanPrice.getAmount();
+
+                    Loan.update(
+                        {interest: loan.interest, interest_paid: loan.interest_paid, loan_price: loan.loan_price},
+                        {where: {id: loan.id}
+                    })
+                    .then(() => {
+                            console.log('Successfully updated record with id: ' + loan.id);
+                    })
+                    .catch(err => {
+                            console.log(err);
+                    })
+
+                    // TODO: consider to inform user with email
                 }
-
-
             })
             .catch(err => {
                 res.status(500).send({
