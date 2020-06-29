@@ -9,24 +9,8 @@ var indexRouter = require('./routes/index');
 var loanRouter = require('./routes/loan.routes');
 var authRouter = require('./routes/auth.router');
 const sequelize = require('./utils/database');
-const swaggerJsDoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
 var swaggerDocument = require('./swagger.json');
-const swaggerOptions = {
-  swaggerDefinition: {
-    info: {
-      title: 'Motozalozna API',
-      description: 'All backend endpoints',
-      contact: {
-        name: 'Jakub Juhas'
-      },
-      servers: ['http://localhost:5000', 'https://motozalozna-backend.herokuapp.com']
-    }
-  },
-  apis: ['routes/index.js', 'routes/loan.routes.js']
-}
-
-const swaggerDocs = swaggerJsDoc(swaggerOptions);
 
 const Loan = require('./models/loan.model');
 const User = require('./models/user.model');

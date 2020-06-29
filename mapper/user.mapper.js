@@ -1,0 +1,3 @@
+exports.mapUserData = (data, userId) => {
+
+}

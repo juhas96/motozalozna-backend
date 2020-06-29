@@ -173,6 +173,12 @@
           "description": "Price to charge",
           "required": true,
           "type": "number"
+        }, {
+          "name": "loanId",
+          "in": "body",
+          "description": "Loan ID",
+          "required": true,
+          "type": "number"
         } ],
         "responses" : {
           "200" : {
@@ -276,7 +282,11 @@
         },
         "loan_price" : {
           "type" : "number",
-          "example" : 12000.0
+          "example" : 12000
+        },
+        "established_law": {
+          "type": "boolean",
+          "example": false
         },
         "loan_length" : {
           "type" : "string",
@@ -304,7 +314,7 @@
         },
         "car_power" : {
           "type" : "number",
-          "example" : 110.0
+          "example" : 110
         },
         "car_years_old" : {
           "type" : "number",
@@ -316,7 +326,7 @@
         },
         "car_km" : {
           "type" : "number",
-          "example" : 120000.0
+          "example" : 120000
         },
         "car_damaged_varnish" : {
           "type" : "boolean",
@@ -344,11 +354,11 @@
         },
         "car_price" : {
           "type" : "number",
-          "example" : 12000.0
+          "example" : 12000
         },
         "interest" : {
           "type" : "number",
-          "example" : 400.0
+          "example" : 400
         },
         "createdAt" : {
           "type" : "string",
@@ -407,11 +417,11 @@
         },
         "prevodovka" : {
           "type" : "number",
-          "example" : 0.0
+          "example" : 0
         },
         "vykon" : {
           "type" : "number",
-          "example" : 110.0
+          "example" : 110
         },
         "vek" : {
           "type" : "number",
@@ -419,11 +429,11 @@
         },
         "pocetkm" : {
           "type" : "number",
-          "example" : 20000.0
+          "example" : 20000
         },
         "auto" : {
           "type" : "number",
-          "example" : 168.0
+          "example" : 168
         }
       }
     },

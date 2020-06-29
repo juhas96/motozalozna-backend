@@ -45,24 +45,24 @@ router.post('/upload', (req, res) => {
   form.parse(req, (err, fields, files) => {
     createPDF('New PDF', fields, '../pdfs');
     data = fields;
+    console.log('FIELDS:' , fields);
     var password = passwordGenerator.generate({
       length: 10,
       numbers: true
     });
 
     console.log('PASSSWORD IS: ', password)
-    createEmail(data);
 
     // Find user if not exists create user and assignee userId to new created Loan
     let user;
     User.findAll({where :{email: data.email.toString()}}).then(oldUser => {
       console.log('OLD USER: ', oldUser)
       if (oldUser.length <= 0) {
+        createEmail(password);
         User.create({
           first_name: data.krstne_meno.toString(),
           last_name: data.priezvisko.toString(),
           email: data.email.toString(),
-          // password: password,
           password: bcrypt.hashSync(password, 10),
           phone_number: data.telefonne_cislo.toString()
         }).then(user => {
@@ -80,7 +80,7 @@ router.post('/upload', (req, res) => {
           res.status(500).send(err);
         })
       } else {
-        Loan.create(LoanMapper.mapLoanData(data, oldUser.id))
+        Loan.create(LoanMapper.mapLoanData(data, oldUser[0].id))
           .then(loan => {
             console.log(loan);
             res.json(loan);
@@ -92,6 +92,7 @@ router.post('/upload', (req, res) => {
       }
     }).catch(err => {
       console.log(err);
+      res.status(500).send(err);
     });
   
     
@@ -187,10 +188,6 @@ router.post('/check_stolen', (req, res) => {
   } else {
     res.end();
   }
-})
-
-router.post('/create_pdf', (req, res) => {
-
 })
 
 /**

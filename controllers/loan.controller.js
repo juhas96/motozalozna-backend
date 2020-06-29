@@ -3,6 +3,7 @@ const loanMapper = require('../mapper/loan.mapper');
 const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
 const stripePublicKey = process.env.STRIPE_PUBLIC_KEY;
 const stripe = require('stripe')(stripeSecretKey);
+const Dinero = require('dinero.js');
 
 // Create and save Loan
 // Create endpoint is not needed
@@ -58,13 +59,55 @@ exports.findAllByUserId = (req, res) => {
 
 exports.pay = (req, res) => {
     const price = req.body.price;
+    const loanId = req.body.loanId;
+
     stripe.charges.create({
         amount: price,
         source: req.body.stripeTokenId,
         currency: 'eur'
     })
-    .then(response => {
-        // TODO: znizit sumu o ktoru user zaplatil danu pozicku
+    .then( () => {
+        Loan.findByPk(loanId)
+            .then(loan => {
+                let currentLoanPrice = Dinero({amount: loan.loan_price, currency: 'EUR', precision: 2});
+                let currentInterestPrice = Dinero({amount: loan.interest, currency: 'EUR', precision: 2});
+                let userPayed = Dinero({amount: price, currency: 'EUR', precision: 2});
+
+                // 1.step -> deduct interest
+                // 2.step -> deduct loan price
+
+                if (userPayed.lessThan(currentInterestPrice)) {
+                    currentInterestPrice = currentInterestPrice.subtract(userPayed);
+                    loan.interest = currentInterestPrice.getAmount();
+                    // Save new interest to DB
+                } else if (userPayed.greaterThanOrEqual(currentInterestPrice)) {
+                    // subtract userPayed by interest, rest subtract from loanPrice
+                    userPayed = userPayed.subtract(currentInterestPrice);
+
+                    currentInterestPrice = currentInterestPrice.subtract(Dinero({amount: currentInterestPrice.getAmount(), currency: 'EUR', precision: 2}));
+                    // Save new interest to DB, should equals to 0
+
+                    currentLoanPrice = currentLoanPrice.subtract(userPayed);
+
+                    // Save new currentLoanPrice to DB, test if is >= 0
+
+                    if (currentLoanPrice.isZero()) {
+                        loan.interest_paid = true;
+                    }
+
+                    loan.interest = 0;
+                    loan.loan_price = currentLoanPrice.getAmount();
+                }
+
+
+            })
+            .catch(err => {
+                res.status(500).send({
+                    message: err.message || 'Some error occurred while retrieving loan with ID: ' + loanId
+                })
+            })
+
+
         res.json({message: 'Successfully charged'});
     })
     .catch(err => {

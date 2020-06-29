@@ -6,12 +6,15 @@ const Loan = sequelize.define('loan', {
         type: Sequelize.DATE
     },
     loan_price: {
-        type: Sequelize.DECIMAL
+        type: Sequelize.BIGINT
     },
     loan_length: {
         type: Sequelize.STRING
     },
     interest_paid: {
+        type: Sequelize.BOOLEAN
+    },
+    established_law: {
         type: Sequelize.BOOLEAN
     },
     car_bodywork_type: {
@@ -57,10 +60,10 @@ const Loan = sequelize.define('loan', {
         type: Sequelize.BOOLEAN
     },
     car_price: {
-        type: Sequelize.DECIMAL
+        type: Sequelize.BIGINT
     },
     interest: {
-        type: Sequelize.DECIMAL
+        type: Sequelize.BIGINT
     }
 });
 
