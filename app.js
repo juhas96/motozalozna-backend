@@ -11,6 +11,8 @@ var authRouter = require('./routes/auth.router');
 const sequelize = require('./utils/database');
 const swaggerUi = require('swagger-ui-express');
 var swaggerDocument = require('./swagger.json');
+const cron = require('node-cron');
+const cronJobs = require('./utils/cron');
 
 const Loan = require('./models/loan.model');
 const User = require('./models/user.model');
@@ -19,12 +21,18 @@ var app = express();
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-// const result = require('dotenv').config();
-// if (result.error) {
-//   throw result.error;
-// }
+/**
+ * CRON JOBS START
+ */
 
+// RUNS EVERY DAY AT 01:30 AM
+cron.schedule('30 1 * * *', () => {
+  cronJobs.updateLoans();
+});
 
+ /**
+  * CRON JOBS END
+  */
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

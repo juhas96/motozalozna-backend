@@ -2,21 +2,7 @@ exports.mapLoanData = (data, userId) => {
     const loan = {};
     let now = new Date();
     const loan_price = parseInt(data.vysledna_pozicka.toString()) * 100;
-    switch(data.dlzka_pozicky.toString()) {
-        case '0':
-            // Loan for 1 week
-            loan.loan_until = new Date().setDate(now.getDate() + 1 * 7);
-            break;
-        case '1':
-            // Loan for 2 weeks
-            loan.loan_until = new Date().setDate(now.getDate() + 2 * 7);
-            break;
-        case '2':
-            // Loan for a month
-            loan.loan_until = new Date().setDate(now.getDate() + 4 * 7);
-            break;
-    }
-
+    loan.loan_until = mapDateFromLoanLength(data.dlzka_pozicky);
     loan.loan_price = loan_price;
     loan.loan_length = data.dlzka_pozicky.toString();
     loan.interest_paid = false;
@@ -41,7 +27,7 @@ exports.mapLoanData = (data, userId) => {
     return loan;
 }
 
-const countInterestPercentage = (lengthOfLoan, established_law) => {
+exports.countInterestPercentage = (lengthOfLoan, established_law) => {
     let percentage = 0;
     console.log('LENGTH OF LOAN: ', lengthOfLoan);
     if (established_law === 'true') {
@@ -72,8 +58,22 @@ const countInterestPercentage = (lengthOfLoan, established_law) => {
     return percentage;
 }
 
-const countInterest = (loanPrice, percentage) => {
+exports.countInterest = (loanPrice, percentage) => {
     console.log('PRICE:', loanPrice);
     console.log('PERCENTAGE:', percentage);
     return (parseInt(percentage) / 100) * parseInt(loanPrice);
+}
+
+exports.mapDateFromLoanLength = (loanLength) => {
+    switch(loanLength.toString()) {
+        case '0':
+            // Loan for 1 week
+            return new Date().setDate(now.getDate() + 1 * 7);
+        case '1':
+            // Loan for 2 weeks
+            return new Date().setDate(now.getDate() + 2 * 7);
+        case '2':
+            // Loan for a month
+            return new Date().setDate(now.getDate() + 4 * 7);
+    }
 }
