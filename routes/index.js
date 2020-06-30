@@ -256,46 +256,46 @@ function createPDF(title, data, dir) {
         underline: true
     });
 
-    doc.font('Times-Bold').fontSize(14).text('Meno: ');
-    doc.font('Times-Bold').fontSize(14).text('Priezvisko: ');
-    doc.font('Times-Bold').fontSize(14).text('Email: ');
-    doc.font('Times-Bold').fontSize(14).text('Tel.číslo: ');
+    doc.font('Times-Bold').fontSize(14).text(`Meno: ${data.krstne_meno.toString()}`);
+    doc.font('Times-Bold').fontSize(14).text(`Priezvisko: ${data.priezvisko.toString()}`);
+    doc.font('Times-Bold').fontSize(14).text(`Email: ${data.email.toString()}`);
+    doc.font('Times-Bold').fontSize(14).text(`Tel.číslo: ${data.telefonne_cislo.toString()}`);
 
     doc.moveDown().font('Times-Bold').fontSize(18).text('Údaje o požicke', {
       align: 'center',
       underline: true
     });
 
-    doc.font('Times-Bold').fontSize(14).text('Dĺžka požicky: ');
-    doc.font('Times-Bold').fontSize(14).text('Úrok v %: ');
-    doc.font('Times-Bold').fontSize(14).text('Výška požičky: ');
-    doc.font('Times-Bold').fontSize(14).text('Úrok v eur: ');
-    doc.font('Times-Bold').fontSize(14).text('Celková suma na splatenie: ');
-    doc.font('Times-Bold').fontSize(14).text('Žiadosť podaná dňa: ');
-    doc.font('Times-Bold').fontSize(14).text('Platnosť do: ');
-    doc.font('Times-Bold').fontSize(14).text('Záložné právo: ');
+    doc.font('Times-Bold').fontSize(14).text(`Dĺžka požicky: ${data.dlzka_pozicky.toString()}`);
+    doc.font('Times-Bold').fontSize(14).text(`Úrok v %: `);
+    doc.font('Times-Bold').fontSize(14).text(`Výška požičky: ${parseInt(data.vysledna_pozicka.toString()) * 100}`);
+    doc.font('Times-Bold').fontSize(14).text(`Úrok v eur: `);
+    doc.font('Times-Bold').fontSize(14).text(`Celková suma na splatenie: `);
+    doc.font('Times-Bold').fontSize(14).text(`Žiadosť podaná dňa: ${new Date()}`);
+    doc.font('Times-Bold').fontSize(14).text(`Platnosť do: `);
+    doc.font('Times-Bold').fontSize(14).text(`Záložné právo: ${data.zalozne_pravo.toString()}`);
 
     doc.moveDown().font('Times-Bold').fontSize(18).text('Údaje o vozidle', {
       align: 'center',
       underline: true
     });
 
-    doc.font('Times-Bold').fontSize(14).text('Hodnota vozidla: ');
-    doc.font('Times-Bold').fontSize(14).text('Typ karosérie: ');
-    doc.font('Times-Bold').fontSize(14).text('Typ paliva: ');
-    doc.font('Times-Bold').fontSize(14).text('Typ pohonu: ');
-    doc.font('Times-Bold').fontSize(14).text('Typ prevodovky: ');
-    doc.font('Times-Bold').fontSize(14).text('Model vozidla: ');
-    doc.font('Times-Bold').fontSize(14).text('Výkon v KW: ');
-    doc.font('Times-Bold').fontSize(14).text('Vek vozidla v rokoch: ');
-    doc.font('Times-Bold').fontSize(14).text('Počet najazdených KM: ');
-    doc.font('Times-Bold').fontSize(14).text('EČV Vozidla: ');
-    doc.font('Times-Bold').fontSize(14).text('Poškodený lak: ');
-    doc.font('Times-Bold').fontSize(14).text('Poškodená karoséria: ');
-    doc.font('Times-Bold').fontSize(14).text('Poškodený interiér: ');
-    doc.font('Times-Bold').fontSize(14).text('Opotrebená náprava: ');
-    doc.font('Times-Bold').fontSize(14).text('Opotrebené pneumatiky: ');
-    doc.font('Times-Bold').fontSize(14).text('Poškodené čelné sklo: ');
+    doc.font('Times-Bold').fontSize(14).text(`Hodnota vozidla: ${data.cena.toString()}`);
+    doc.font('Times-Bold').fontSize(14).text(`Typ karosérie: ${data.karoseria == 0 ? 'Hatchbag / Sedan' : 'Kabrio'}`);
+    doc.font('Times-Bold').fontSize(14).text(`Typ paliva: ${data.palivo == 0 ? 'Benzín' : 'Nafta'}`);
+    doc.font('Times-Bold').fontSize(14).text(`Typ pohonu: ${data.pohon == 0 ? 'Jednej nápravy' : '4x4'}`);
+    doc.font('Times-Bold').fontSize(14).text(`Typ prevodovky: ${data.prevodovka == 0 ? 'Manuálna' : 'Automatická'}`);
+    doc.font('Times-Bold').fontSize(14).text(`Model vozidla: `);
+    doc.font('Times-Bold').fontSize(14).text(`Výkon v KW: ${data.vykon.toString()}`);
+    doc.font('Times-Bold').fontSize(14).text(`Vek vozidla v rokoch: ${data.vek.toString()}`);
+    doc.font('Times-Bold').fontSize(14).text(`Počet najazdených KM: ${data.pocetkm.toString()}`);
+    doc.font('Times-Bold').fontSize(14).text(`EČV Vozidla: ${data.ec.toString()}`);
+    doc.font('Times-Bold').fontSize(14).text(`Poškodený lak: ${data.poskodeny_lak == 0 ? 'NIE' : 'ÁNO'}`);
+    doc.font('Times-Bold').fontSize(14).text(`Poškodená karoséria: ${data.poskodena_karoseria == 0 ? 'NIE' : 'ÁNO'}`);
+    doc.font('Times-Bold').fontSize(14).text(`Poškodený interiér: ${data.poskodeny_interier == 0 ? 'NIE' : 'ÁNO'}`);
+    doc.font('Times-Bold').fontSize(14).text(`Opotrebená náprava: ${data.opotrebena_naprava == 0 ? 'NIE' : 'ÁNO'}`);
+    doc.font('Times-Bold').fontSize(14).text(`Opotrebené pneumatiky: ${data.opotrebene_pneu == 0 ? 'NIE' : 'ÁNO'}`);
+    doc.font('Times-Bold').fontSize(14).text(`Poškodené čelné sklo: ${data.poskodene_sklo == 0 ? 'NIE' : 'ÁNO'}`);
     doc.end();
 }
 
