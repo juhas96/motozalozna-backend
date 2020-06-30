@@ -1,0 +1,98 @@
+<mjml>
+  <mj-body background-color="#ccd3e0">
+    <mj-section background-color="#fff" padding-bottom="20px" padding-top="20px">
+      <mj-column width="100%">
+        <mj-text align="center">
+            <h1>Motozalozna.sk</h1>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+    <mj-section background-color="#E16428" padding-bottom="0px" padding-top="0">
+      <mj-column width="100%">
+        <mj-text align="center" font-size="30px" color="#FFF" font-family="Ubuntu, Helvetica, Arial, sans-serif" padding-left="25px" padding-right="25px" padding-bottom="18px" padding-top="28px">Ahoj
+          <p style="font-size:16px; color:white">[[Používateľské meno]]</p>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+    <mj-section background-color="#E16428" padding-bottom="5px" padding-top="0">
+      <mj-column width="100%">
+        <mj-divider border-color="#ffffff" border-width="2px" border-style="solid" padding-left="20px" padding-right="20px" padding-bottom="0px" padding-top="0"></mj-divider>
+        <mj-text align="center" color="#FFF" font-size="13px" font-family="Helvetica" padding-left="25px" padding-right="25px" padding-bottom="28px" padding-top="28px">
+            <span style="font-size:20px; font-weight:bold">Ďakujeme za vyplnenie formuláru.</span>
+            <br/>
+            <br/>
+            <span>Hneď sa pustíme do jeho spracovania.</span>
+            <br/>
+            <br/>
+            <span style="font-size:15px">Stav si môžeš skontrolovať kliknutím na tlačidlo nižšie</span>
+          </mj-text>
+      </mj-column>
+    </mj-section>
+    <mj-section background-color="#E16428" padding-bottom="15px">
+      <mj-column>
+        <mj-text align="center" color="#FFF" font-size="15px" font-family="Ubuntu, Helvetica, Arial, sans-serif" padding-left="25px" padding-right="25px" padding-bottom="0px"><strong>Číslo žiadosti</strong></mj-text>
+        <mj-text align="center" color="#FFF" font-size="13px" font-family="Helvetica" padding-left="25px" padding-right="25px" padding-bottom="20px" padding-top="10px">[[Číslo žiadosti]]</mj-text>
+      </mj-column>
+      <mj-column>
+        <mj-text align="center" color="#FFF" font-size="15px" font-family="Ubuntu, Helvetica, Arial, sans-serif" padding-left="25px" padding-right="25px" padding-bottom="0px"><strong>Dátum vyplnenia</strong></mj-text>
+        <mj-text align="center" color="#FFF" font-size="13px" font-family="Helvetica" padding-left="25px" padding-right="25px" padding-bottom="20px" padding-top="10px">[[Dátum vyplnenia]]</mj-text>
+      </mj-column>
+      <mj-column>
+        <mj-text align="center" color="#FFF" font-size="15px" font-family="Ubuntu, Helvetica, Arial, sans-serif" padding-left="25px" padding-right="25px" padding-bottom="0px">
+            <strong>Požiadaná čiastka</strong>
+        </mj-text>
+        <mj-text align="center" color="#FFF" font-size="13px" font-family="Helvetica" padding-left="25px" padding-right="25px" padding-bottom="20px" padding-top="10px">
+            [[Celková suma]]
+        </mj-text>
+      </mj-column>
+    </mj-section>
+        <mj-section background-color="#E16428" padding-bottom="5px" padding-top="0">
+      <mj-column width="100%">
+        <mj-divider border-color="#ffffff" border-width="2px" border-style="solid" padding-left="20px" padding-right="20px" padding-bottom="0px" padding-top="0"></mj-divider>
+        <mj-text align="center" color="#FFF" font-size="13px" font-family="Helvetica" padding-left="25px" padding-right="25px" padding-bottom="28px" padding-top="28px">
+            <span style="font-size:20px; font-weight:bold">Pre prihlásenie do používateľského účtu použite nasledovné údaje:</span>
+            </br>
+            </br>
+            <h2 style="font-size:15px">Email: [[email]]</h2>
+             <h2 style="font-size:15px">Heslo: [[heslo]]</h2>
+          </mj-text>
+      </mj-column>
+    </mj-section>
+    <mj-section background-color="#E16428" padding-bottom="20px">
+      <mj-column width="50%">
+        <mj-button background-color="#FFF" color="black" font-size="14px" align="center" font-weight="bold" border="none" padding="15px 30px" border-radius="10px" href="https://mjml.io" font-family="Helvetica" padding-left="25px" padding-right="25px" padding-bottom="10px">Zobraziť žiadosť</mj-button>
+      </mj-column>
+      <mj-column width="50%">
+        <mj-button background-color="#FFF" color="black" font-size="14px" align="center" font-weight="bold" border="none" padding="15px 30px" border-radius="10px" href="https://mjml.io" font-family="Helvetica" padding-left="25px" padding-right="25px" padding-bottom="12px">Zobraziť stav pôžičky</mj-button>
+      </mj-column>
+    </mj-section>
+    <mj-section background-color="#E16428" padding-bottom="5px" padding-top="0">
+      <mj-column width="100%">
+        <mj-divider border-color="#ffffff" border-width="2px" border-style="solid" padding-left="20px" padding-right="20px" padding-bottom="0px" padding-top="0"></mj-divider>
+        <mj-text align="center" color="#FFF" font-size="15px" font-family="Helvetica" padding-left="25px" padding-right="25px" padding-bottom="20px" padding-top="20px">
+            <span style="font-size:15px">Motozalozna.sk</span>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+    <mj-section background-color="#FFF"padding-bottom="20px" padding-top="20px">
+      <mj-column width="50%" vertical-align="middle">
+        <mj-text align="center" font-size="20px" font-weight="bold" padding="0 25px">
+          <p>0917 177 222</p>
+        </mj-text>
+      </mj-column>
+      <mj-column width="50%" vertical-align="middle">
+        <mj-text align="center" font-size="20px" font-weight="bold" padding="0 25px">
+          <p>info@motozalozna.sk</p>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+    <!-- <mj-section background-color="#FFF">
+        <mj-column vertical-align="middle">
+            <mj-social mode="horizontal" padding="30px">
+                <mj-social-element name="facebook" href="[[SHORT_PERMALINK]]"></mj-social-element>
+                 <mj-social-element name="instagram" href="[[SHORT_PERMALINK]]"></mj-social-element>
+            </mj-social>
+      </mj-column>
+    </mj-section> -->
+  </mj-body>
+</mjml>
