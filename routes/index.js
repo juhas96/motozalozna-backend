@@ -205,7 +205,7 @@ async function copyFilesToFtp(sourcePath, destPath, ) {
   client.close();
 }
 
-async function createEmail(data) {
+async function createEmail(data, subject, html, mailTo) {
   let transporter = nodemailer.createTransport({
     host: process.env.EMAIL_HOST,
     port: process.env.EMAIL_PORT,
@@ -227,11 +227,10 @@ transporter.verify(function(error, success) {
 
   // send mail with defined transport object
   let info = await transporter.sendMail({
-    from: '"Jakub Juhas" <info@motozalozna.sk>', // sender address
-    to: "juhas.jugi@gmail.com", // list of receivers
-    subject: "Hello ✔", // Subject line
-    text: 'pass is:' + data.toString(), // plain text body
-    html: "<b>PASS IS: </b>" + data.toString(), // html body
+    from: '"Motozalozna.sk" <info@motozalozna.sk>', // sender address
+    to: mailTo.toString(), // list of receivers
+    subject: subject.toString(), // Subject line
+    html: html, // html body
   });
 
   console.log("Message sent: %s", info.messageId);
@@ -247,18 +246,56 @@ function createPDF(title, data, dir) {
     const doc = new PDFDocument;
     doc.pipe(fs.createWriteStream("form.pdf"));
     // draw some text
-    doc.fontSize(25).text('Nová požiadavka na pozicku', {
-      align: 'center' 
+    // draw some text
+    doc.font('Times-Bold').fontSize(25).text('Žiadost o požicku', {
+        align: 'center'
     });
 
-    doc.fontSize(14).text(`Meno: ${data.krstne_meno}`);
-    doc.fontSize(14).text(`Priezvisko: ${data.priezvisko}`);
-    doc.fontSize(14).text(`Email: ${data.email}`);
-    doc.fontSize(14).text(`Telefonne cislo: ${data.telefonne_cislo}`);
-    doc.fontSize(14).text(`Vozidlo: ${data.autoName}`);
-    doc.fontSize(14).text(`ECV: ${data.ec}`);
-    doc.fontSize(14).text(`Vyska pozicky: ${data.vysledna_pozicka}`);
-    doc.fontSize(14).text(`Dlzka pozicky: ${data.dlzka_pozicky}`);
+    doc.moveDown().font('Times-Bold').fontSize(18).text('Osobné údaje', {
+        align: 'center',
+        underline: true
+    });
+
+    doc.font('Times-Bold').fontSize(14).text('Meno: ');
+    doc.font('Times-Bold').fontSize(14).text('Priezvisko: ');
+    doc.font('Times-Bold').fontSize(14).text('Email: ');
+    doc.font('Times-Bold').fontSize(14).text('Tel.číslo: ');
+
+    doc.moveDown().font('Times-Bold').fontSize(18).text('Údaje o požicke', {
+      align: 'center',
+      underline: true
+    });
+
+    doc.font('Times-Bold').fontSize(14).text('Dĺžka požicky: ');
+    doc.font('Times-Bold').fontSize(14).text('Úrok v %: ');
+    doc.font('Times-Bold').fontSize(14).text('Výška požičky: ');
+    doc.font('Times-Bold').fontSize(14).text('Úrok v eur: ');
+    doc.font('Times-Bold').fontSize(14).text('Celková suma na splatenie: ');
+    doc.font('Times-Bold').fontSize(14).text('Žiadosť podaná dňa: ');
+    doc.font('Times-Bold').fontSize(14).text('Platnosť do: ');
+    doc.font('Times-Bold').fontSize(14).text('Záložné právo: ');
+
+    doc.moveDown().font('Times-Bold').fontSize(18).text('Údaje o vozidle', {
+      align: 'center',
+      underline: true
+    });
+
+    doc.font('Times-Bold').fontSize(14).text('Hodnota vozidla: ');
+    doc.font('Times-Bold').fontSize(14).text('Typ karosérie: ');
+    doc.font('Times-Bold').fontSize(14).text('Typ paliva: ');
+    doc.font('Times-Bold').fontSize(14).text('Typ pohonu: ');
+    doc.font('Times-Bold').fontSize(14).text('Typ prevodovky: ');
+    doc.font('Times-Bold').fontSize(14).text('Model vozidla: ');
+    doc.font('Times-Bold').fontSize(14).text('Výkon v KW: ');
+    doc.font('Times-Bold').fontSize(14).text('Vek vozidla v rokoch: ');
+    doc.font('Times-Bold').fontSize(14).text('Počet najazdených KM: ');
+    doc.font('Times-Bold').fontSize(14).text('EČV Vozidla: ');
+    doc.font('Times-Bold').fontSize(14).text('Poškodený lak: ');
+    doc.font('Times-Bold').fontSize(14).text('Poškodená karoséria: ');
+    doc.font('Times-Bold').fontSize(14).text('Poškodený interiér: ');
+    doc.font('Times-Bold').fontSize(14).text('Opotrebená náprava: ');
+    doc.font('Times-Bold').fontSize(14).text('Opotrebené pneumatiky: ');
+    doc.font('Times-Bold').fontSize(14).text('Poškodené čelné sklo: ');
     doc.end();
 }
 
