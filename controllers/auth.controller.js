@@ -38,6 +38,22 @@ function generateAccessToken(userEmail) {
     return jwt.sign(userEmail, process.env.ACCESS_TOKEN_SECRET)
 }
 
+exports.forgotPassword = (req, res) => {
+    const email = req.body.email;
+    // bcrypt.hashSync(password, 10)
+
+    User.findAll({where: {email: email}})
+        .then(user => {
+            if (user.length > 0) {
+
+            } else {
+                res.status(400).send({
+                    message: 'User is not exists.'
+                });
+            }
+        })
+}
+
 exports.login = (req, res) => {
     const email = req.body.email;
     const password = req.body.password;

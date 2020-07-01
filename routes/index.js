@@ -5,23 +5,20 @@ var fs = require('fs');
 // var upload = require('express-fileupload');
 var bodyParser = require('body-parser');
 var dir = './tmp'
-var ftp = require('basic-ftp');
-var FormData = require('form-data');
-const axios = require('axios');
-const HTMLParser = require('node-html-parser');
-// require('dotenv').config();
+var pdfs = './pdfs';
 const nodemailer = require("nodemailer");
 var multer = require('multer');
-const PDFDocument = require('pdfkit')
 const paths = require('path');
 const bcrypt = require('bcrypt');
 var passwordGenerator = require('generate-password');
-
-// TODO: refactor whole file to more classes
-
+const formController = require('../controllers/form.controller');
+const utils = require('../utils/utils')
 const LoanMapper = require('../mapper/loan.mapper');
 const User = require('../models/user.model');
 const Loan = require('../models/loan.model');
+const Client = require('ftp');
+const ftpClient = new Client();
+// require('dotenv').config();
 
 let storage = multer.diskStorage({
   destination: (req, file, callback) => {
@@ -34,296 +31,152 @@ let storage = multer.diskStorage({
 
 var upload = multer({storage: storage}).array('files', 20);
 
+ftpClient.connect({
+   host: process.env.FTP_HOST,
+   user: process.env.FTP_USER,
+   password: process.env.FTP_PASSWORD
+});
+ftpClient.on('greeting', (msg) => {
+  console.log('FTP: ', msg);
+})
+
+ftpClient.on('ready', () => {
+  console.log('FTP is ready');
+})
+
+ftpClient.on('error', (err) => {
+  console.log('FTP ERROR:', err);
+})
+
+
 router.use(bodyParser.urlencoded({extended: true}))
-const client = new ftp.Client();
 
 // File upload
 router.post('/upload', (req, res) => {
-  let files = req.files;
+  const now = new Date();
   var form = new multiparty.Form();
   let data;
-  form.parse(req, (err, fields, files) => {
-    createPDF('New PDF', fields, '../pdfs');
-    data = fields;
-    console.log('FIELDS:' , fields);
-    var password = passwordGenerator.generate({
-      length: 10,
-      numbers: true
-    });
-
-    console.log('PASSSWORD IS: ', password)
-
-    // Find user if not exists create user and assignee userId to new created Loan
-    let user;
-    User.findAll({where :{email: data.email.toString()}}).then(oldUser => {
-      console.log('OLD USER: ', oldUser)
-      if (oldUser.length <= 0) {
-        createEmail(password);
-        User.create({
-          first_name: data.krstne_meno.toString(),
-          last_name: data.priezvisko.toString(),
-          email: data.email.toString(),
-          password: bcrypt.hashSync(password, 10),
-          phone_number: data.telefonne_cislo.toString()
-        }).then(user => {
-          Loan.create(LoanMapper.mapLoanData(data, user.id))
-            .then(loan => {
-              console.log(loan);
-              res.json(loan);
-            })
-            .catch(err => {
-              console.log(err);
-              res.status(500).send(err);
-            });
-        }).catch(err => {
-          console.log(err);
-          res.status(500).send(err);
-        })
-      } else {
-        Loan.create(LoanMapper.mapLoanData(data, oldUser[0].id))
-          .then(loan => {
-            console.log(loan);
-            res.json(loan);
-          })
-          .catch(err => {
-            console.log(err);
-            res.status(500).send(err);
-          });
-      }
-    }).catch(err => {
-      console.log(err);
-      res.status(500).send(err);
-    });
-  
-    
-  })
 
   // If temporary directory doesn't exists create it
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir);
   }
 
-  // upload(req, res, (err) => {
-  //   if (err instanceof multer.MulterError) {
-  //     return res.status(500).json(err);
-  //   } else if (err) {
-  //     return res.status(500).json(err);
-  //   }
-  //   // return res.status(200).send('Success!');
-  // });
+  // Save files to ./tmp directory
+  upload(req, res, (err) => {
+    if (err instanceof multer.MulterError) {
+      return res.status(500).json(err);
+    } else if (err) {
+      return res.status(500).json(err);
+    }
+    console.log('Files uploading');
+  });
 
-  //TODO: copyFilesViaFtp and delete all uploaded files
+  form.parse(req, (err, fields, files) => {
+    if (err) throw err;
+    data = fields;
 
+    // PDF Creation
+    utils.createPdf(fields, pdfs, `${now.getFullYear()}_${now.getMonth()}_${now.getDate()}_${data.krstne_meno}_${data.priezvisko}`).then(() => {
+      // Password generate
+      var password = passwordGenerator.generate({
+        length: 10,
+        numbers: true
+      });
+
+      console.log('PASSSWORD IS: ', password)
+
+      // Find user if not exists create user and assignee userId to new created Loan
+      User.findAll({where :{email: data.email.toString()}}).then(oldUser => {
+        if (oldUser.length <= 0) {
+          utils.sendEmail(data, 'Nova pozicka', password, `${now.getFullYear()}_${now.getMonth()}_${now.getDate()}_${data.krstne_meno}_${data.priezvisko}`);
+          User.create({
+            first_name: data.krstne_meno.toString(),
+            last_name: data.priezvisko.toString(),
+            email: data.email.toString(),
+            password: bcrypt.hashSync(password, 10),
+            phone_number: data.telefonne_cislo.toString()
+          }).then(user => {
+            Loan.create(LoanMapper.mapLoanData(data, user.id))
+              .then(loan => {
+                res.json(loan);
+              })
+              .catch(err => {
+                console.log(err);
+                res.status(500).send(err);
+              });
+          }).catch(err => {
+            console.log(err);
+            res.status(500).send(err);
+          })
+        } else {
+          utils.sendEmail(data, 'Nova pozicka', password, `${now.getFullYear()}_${now.getMonth()}_${now.getDate()}_${data.krstne_meno}_${data.priezvisko}`);
+          Loan.create(LoanMapper.mapLoanData(data, oldUser[0].id))
+            .then(loan => {
+              res.json(loan);
+            })
+            .catch(err => {
+              console.log(err);
+              res.status(500).send(err);
+            });
+        }
+      }).catch(err => {
+        console.log(err);
+        res.status(500).send(err);
+      });
+
+      copyFilesViaFtp(data);
+    });
+  })
 });
-
-//     // TODO: take username from frontend and create directory in ftp
-//     // Directory name is from request header
-//     copyFilesToFtp(dir + `/${file.name}`, '2020/05/' + file.name)
-//       console.log('Personal Info file saved deleting file');
-
-//       // Delete file when is copied to FTP
-//       fs.unlink(dir + `/${file.name}`, () => {
-//         console.log('File successfully deleted');
-//       });
-//     });
 
 // Price check
-router.post('/check_price', (req, res) => {
-  if (req.body) {
-    var bodyFormData = new FormData();
-    var carPrice = 0;
-    // Map data to FormData
-    priceFormDataMapper(bodyFormData, req.body)
-
-    // Call endpoint with data
-    axios.post('http://www.institutfinancnejpolitiky.sk/kalkulacky/aut/getprice.php',
-      bodyFormData,
-      {headers: {'Content-Type': 'multipart/form-data; boundary=' + bodyFormData.getBoundary()}}
-    ).then(result => {
-      // Parse result
-      const root = HTMLParser.parse(result.data);
-      const priceResult = root.querySelector('.result1');
-      carPrice = priceResult.querySelector('#odometer3').rawText
-      res.status(200).send(carPrice);
-    }).catch(error => {
-      console.log('ERROR: ', error);
-    })
-  } else {
-    res.end();
-  }
-});
-
+router.post('/check_price', formController.checkPrice);
 
 // Stolen check
-router.post('/check_stolen', (req, res) => {
-  if (req.body) {
-    var bodyFormData = new FormData();
-    bodyFormData.append('ec', req.body.ecv);
+router.post('/check_stolen', formController.checkStolen);
 
-    axios.post('https://www.minv.sk/?odcudzene-mot-vozidla',
-      bodyFormData,
-      {headers: {'Content-Type': 'multipart/form-data; boundary=' + bodyFormData.getBoundary()}}
-    ).then(result => {
-      // Parse HTML result
-      const root = HTMLParser.parse(result.data);
-      const tableWithResult = root.querySelector('.tabulka4');
-      const spanWithResult = tableWithResult.querySelector('.tddark');
-      var numberOfRecordsString = spanWithResult.firstChild.rawText;
-      numberOfRecordsString = numberOfRecordsString.replace(/\D/g, '');
-
-      // If numberOfRecords == 0 car is NOT stolen
-      if (numberOfRecordsString == 0) {
-        res.status(200).send(numberOfRecordsString);
-      } else {
-        res.status(403).send(numberOfRecordsString);
+async function copyFilesViaFtp(data) {
+  const now = new Date();
+  // File should have name ex: 2020_07_1_Jakub_Juhas
+  ftpClient.mkdir(`${now.getFullYear()}_${now.getMonth()}_${now.getDate()}_${data.krstne_meno}_${data.priezvisko}`,true, ((error) => {
+    const destPath = `${now.getFullYear()}_${now.getMonth()}_${now.getDate()}_${data.krstne_meno}_${data.priezvisko}`;
+    if (error) {
+      console.log(error);
+    }
+    // List all files in tmp folder and upload them
+    fs.readdir(dir, (err, files) => {
+      if (err) {
+        console.log(err);
       }
-    }).catch((err) => {
-      console.error(err);
-    })
-  } else {
-    res.end();
-  }
-})
 
-/**
- * 
- * @param {*} sourcePath - path to file which is copied 
- * @param {*} destPath - destination path for file
- */
-async function copyFilesToFtp(sourcePath, destPath, ) {
-  client.ftp.verbose = true;
-  try {
-    await client.access({
-      host: process.env.FTP_HOST,
-      user: process.env.FTP_USER,
-      password: process.env.FTP_PASSWORD
-    });
-    await client.uploadFrom(sourcePath, destPath);
-  } catch (err) {
-    console.log(err);
-  }
-  client.close();
-}
-
-async function createEmail(data, subject, html, mailTo) {
-  let transporter = nodemailer.createTransport({
-    host: process.env.EMAIL_HOST,
-    port: process.env.EMAIL_PORT,
-    secure: false, // true for 465, false for other ports
-    auth: {
-      user: process.env.EMAIL_USER, // generated ethereal user
-      pass: process.env.EMAIL_PASSWORD, // generated ethereal password
-    },
-  });
-
-  // verify connection configuration
-transporter.verify(function(error, success) {
-  if (error) {
-    console.log(error);
-  } else {
-    console.log("Server is ready to take our messages");
-  }
-});
-
-  // send mail with defined transport object
-  let info = await transporter.sendMail({
-    from: '"Motozalozna.sk" <info@motozalozna.sk>', // sender address
-    to: mailTo.toString(), // list of receivers
-    subject: subject.toString(), // Subject line
-    html: html, // html body
-  });
-
-  console.log("Message sent: %s", info.messageId);
-  // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
-
-  // Preview only available when sending through an Ethereal account
-  console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
-}
-
-function createPDF(title, data, dir) {
-    // TODO: create DIR if not exists
-    console.log('CREATING PDF')
-    const doc = new PDFDocument;
-    doc.pipe(fs.createWriteStream("form.pdf"));
-    // draw some text
-    // draw some text
-    doc.font('Times-Bold').fontSize(25).text('Žiadost o požicku', {
-        align: 'center'
+      files.forEach((file) => {
+        ftpClient.put(`${dir}` + `/${file}`, `${destPath}` + `/${file}`, (err) => {
+          if (err) throw err;
+          // Delete file when is copied to FTP
+          fs.unlink(dir + `/${file}`, () => {
+            console.log('Image successfully deleted');
+          });
+        });
+      })
     });
 
-    doc.moveDown().font('Times-Bold').fontSize(18).text('Osobné údaje', {
-        align: 'center',
-        underline: true
+    // List all files in uploads folder and delete them
+    fs.readdir(pdfs, (err, files) => {
+      if (err) {
+        console.log(err);
+      }
+
+      files.forEach((file) => {
+        ftpClient.put(`${pdfs}` + `/${file}`, `${destPath}` + `/${file}`, (err) => {
+          if (err) throw err;
+        });
+      })
     });
-
-    doc.font('Times-Bold').fontSize(14).text(`Meno: ${data.krstne_meno.toString()}`);
-    doc.font('Times-Bold').fontSize(14).text(`Priezvisko: ${data.priezvisko.toString()}`);
-    doc.font('Times-Bold').fontSize(14).text(`Email: ${data.email.toString()}`);
-    doc.font('Times-Bold').fontSize(14).text(`Tel.číslo: ${data.telefonne_cislo.toString()}`);
-
-    doc.moveDown().font('Times-Bold').fontSize(18).text('Údaje o požicke', {
-      align: 'center',
-      underline: true
-    });
-
-    doc.font('Times-Bold').fontSize(14).text(`Dĺžka požicky: ${data.dlzka_pozicky.toString()}`);
-    doc.font('Times-Bold').fontSize(14).text(`Úrok v %: `);
-    doc.font('Times-Bold').fontSize(14).text(`Výška požičky: ${parseInt(data.vysledna_pozicka.toString()) * 100}`);
-    doc.font('Times-Bold').fontSize(14).text(`Úrok v eur: `);
-    doc.font('Times-Bold').fontSize(14).text(`Celková suma na splatenie: `);
-    doc.font('Times-Bold').fontSize(14).text(`Žiadosť podaná dňa: ${new Date()}`);
-    doc.font('Times-Bold').fontSize(14).text(`Platnosť do: `);
-    doc.font('Times-Bold').fontSize(14).text(`Záložné právo: ${data.zalozne_pravo.toString()}`);
-
-    doc.moveDown().font('Times-Bold').fontSize(18).text('Údaje o vozidle', {
-      align: 'center',
-      underline: true
-    });
-
-    doc.font('Times-Bold').fontSize(14).text(`Hodnota vozidla: ${data.cena.toString()}`);
-    doc.font('Times-Bold').fontSize(14).text(`Typ karosérie: ${data.karoseria == 0 ? 'Hatchbag / Sedan' : 'Kabrio'}`);
-    doc.font('Times-Bold').fontSize(14).text(`Typ paliva: ${data.palivo == 0 ? 'Benzín' : 'Nafta'}`);
-    doc.font('Times-Bold').fontSize(14).text(`Typ pohonu: ${data.pohon == 0 ? 'Jednej nápravy' : '4x4'}`);
-    doc.font('Times-Bold').fontSize(14).text(`Typ prevodovky: ${data.prevodovka == 0 ? 'Manuálna' : 'Automatická'}`);
-    doc.font('Times-Bold').fontSize(14).text(`Model vozidla: `);
-    doc.font('Times-Bold').fontSize(14).text(`Výkon v KW: ${data.vykon.toString()}`);
-    doc.font('Times-Bold').fontSize(14).text(`Vek vozidla v rokoch: ${data.vek.toString()}`);
-    doc.font('Times-Bold').fontSize(14).text(`Počet najazdených KM: ${data.pocetkm.toString()}`);
-    doc.font('Times-Bold').fontSize(14).text(`EČV Vozidla: ${data.ec.toString()}`);
-    doc.font('Times-Bold').fontSize(14).text(`Poškodený lak: ${data.poskodeny_lak == 0 ? 'NIE' : 'ÁNO'}`);
-    doc.font('Times-Bold').fontSize(14).text(`Poškodená karoséria: ${data.poskodena_karoseria == 0 ? 'NIE' : 'ÁNO'}`);
-    doc.font('Times-Bold').fontSize(14).text(`Poškodený interiér: ${data.poskodeny_interier == 0 ? 'NIE' : 'ÁNO'}`);
-    doc.font('Times-Bold').fontSize(14).text(`Opotrebená náprava: ${data.opotrebena_naprava == 0 ? 'NIE' : 'ÁNO'}`);
-    doc.font('Times-Bold').fontSize(14).text(`Opotrebené pneumatiky: ${data.opotrebene_pneu == 0 ? 'NIE' : 'ÁNO'}`);
-    doc.font('Times-Bold').fontSize(14).text(`Poškodené čelné sklo: ${data.poskodene_sklo == 0 ? 'NIE' : 'ÁNO'}`);
-    doc.end();
-}
-
-/**
- * Returns mapped data to FORM-Data for check price API request
- * @param {*} formData - formData for CheckPrice request 
- * @param {*} data - data from request
- */
-function priceFormDataMapper(formData, data) {
-  formData.append('karoseria', data.karoseria);
-  formData.append('palivo', data.palivo);
-  formData.append('pohon', data.pohon);
-  formData.append('prevodovka', data.prevodovka);
-  formData.append('vykon', data.vykon);
-  formData.append('vek', data.vek);
-  formData.append('pocetkm', data.pocetkm);
-  formData.append('dovezene', 0);
-  formData.append('auto', data.auto);
+  }));
 }
 
 module.exports = router;
-
-
-
-
-
-
-
 // router.get('/', (req,res) => {
 //   let cars = [];
 //   const rootHtml = HTMLParser.parse(htmlFile)

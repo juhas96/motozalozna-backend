@@ -58,6 +58,29 @@
         }
       }
     },
+    "/auth/forgot-password" : {
+      "put" : {
+        "tags" : [ "auth" ],
+        "summary" : "Password reset",
+        "operationId" : "reset-pass",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "email",
+          "in" : "body",
+          "description" : "User email",
+          "required" : true,
+          "type" : "string"
+        }],
+        "responses" : {
+          "200" : {
+            "description" : "link was generated"
+          },
+          "400" : {
+            "description" : "User with this email was not found."
+          }
+        }
+      }
+    },
     "/auth/logout" : {
       "delete" : {
         "tags" : [ "auth" ],

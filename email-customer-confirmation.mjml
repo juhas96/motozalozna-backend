@@ -10,7 +10,7 @@
     <mj-section background-color="#E16428" padding-bottom="0px" padding-top="0">
       <mj-column width="100%">
         <mj-text align="center" font-size="30px" color="#FFF" font-family="Ubuntu, Helvetica, Arial, sans-serif" padding-left="25px" padding-right="25px" padding-bottom="18px" padding-top="28px">Ahoj
-          <p style="font-size:16px; color:white">[[Používateľské meno]]</p>
+          <p style="font-size:16px; color:white">{{firstName}}</p>
         </mj-text>
       </mj-column>
     </mj-section>
@@ -31,18 +31,18 @@
     <mj-section background-color="#E16428" padding-bottom="15px">
       <mj-column>
         <mj-text align="center" color="#FFF" font-size="15px" font-family="Ubuntu, Helvetica, Arial, sans-serif" padding-left="25px" padding-right="25px" padding-bottom="0px"><strong>Číslo žiadosti</strong></mj-text>
-        <mj-text align="center" color="#FFF" font-size="13px" font-family="Helvetica" padding-left="25px" padding-right="25px" padding-bottom="20px" padding-top="10px">[[Číslo žiadosti]]</mj-text>
+        <mj-text align="center" color="#FFF" font-size="13px" font-family="Helvetica" padding-left="25px" padding-right="25px" padding-bottom="20px" padding-top="10px">{{loanNumber}}</mj-text>
       </mj-column>
       <mj-column>
         <mj-text align="center" color="#FFF" font-size="15px" font-family="Ubuntu, Helvetica, Arial, sans-serif" padding-left="25px" padding-right="25px" padding-bottom="0px"><strong>Dátum vyplnenia</strong></mj-text>
-        <mj-text align="center" color="#FFF" font-size="13px" font-family="Helvetica" padding-left="25px" padding-right="25px" padding-bottom="20px" padding-top="10px">[[Dátum vyplnenia]]</mj-text>
+        <mj-text align="center" color="#FFF" font-size="13px" font-family="Helvetica" padding-left="25px" padding-right="25px" padding-bottom="20px" padding-top="10px">{{loanDate}}</mj-text>
       </mj-column>
       <mj-column>
         <mj-text align="center" color="#FFF" font-size="15px" font-family="Ubuntu, Helvetica, Arial, sans-serif" padding-left="25px" padding-right="25px" padding-bottom="0px">
             <strong>Požiadaná čiastka</strong>
         </mj-text>
         <mj-text align="center" color="#FFF" font-size="13px" font-family="Helvetica" padding-left="25px" padding-right="25px" padding-bottom="20px" padding-top="10px">
-            [[Celková suma]]
+            {{priceAsked}}
         </mj-text>
       </mj-column>
     </mj-section>
@@ -53,8 +53,8 @@
             <span style="font-size:20px; font-weight:bold">Pre prihlásenie do používateľského účtu použite nasledovné údaje:</span>
             </br>
             </br>
-            <h2 style="font-size:15px">Email: [[email]]</h2>
-             <h2 style="font-size:15px">Heslo: [[heslo]]</h2>
+            <h2 style="font-size:15px">Email: {{email}}</h2>
+             <h2 style="font-size:15px">Heslo: {{password}}</h2>
           </mj-text>
       </mj-column>
     </mj-section>

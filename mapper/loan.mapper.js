@@ -27,7 +27,7 @@ exports.mapLoanData = (data, userId) => {
     return loan;
 }
 
-exports.countInterestPercentage = (lengthOfLoan, established_law) => {
+function countInterestPercentage(lengthOfLoan, established_law) {
     let percentage = 0;
     console.log('LENGTH OF LOAN: ', lengthOfLoan);
     if (established_law === 'true') {
@@ -58,13 +58,14 @@ exports.countInterestPercentage = (lengthOfLoan, established_law) => {
     return percentage;
 }
 
-exports.countInterest = (loanPrice, percentage) => {
+function countInterest(loanPrice, percentage) {
     console.log('PRICE:', loanPrice);
     console.log('PERCENTAGE:', percentage);
     return (parseInt(percentage) / 100) * parseInt(loanPrice);
 }
 
-exports.mapDateFromLoanLength = (loanLength) => {
+function mapDateFromLoanLength(loanLength) {
+    let now = new Date();
     switch(loanLength.toString()) {
         case '0':
             // Loan for 1 week
