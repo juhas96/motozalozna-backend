@@ -78,3 +78,7 @@ function mapDateFromLoanLength(loanLength) {
             return new Date().setDate(now.getDate() + 4 * 7);
     }
 }
+
+module.exports = {
+    countInterestPercentage, countInterest, mapDateFromLoanLength
+}
