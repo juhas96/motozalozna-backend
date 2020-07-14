@@ -3,6 +3,7 @@ var fs = require('fs');
 const nodemailer = require("nodemailer");
 const handlebars = require('handlebars');
 const mjml2html = require('mjml')
+const Dinero = require('dinero.js');
 // require('dotenv').config();
 /**
  * 
@@ -25,10 +26,10 @@ function sendEmail(data, subject, password, attachmentName) {
     const context = {
         firstName: data.krstne_meno.toString(),
         loanNumber: 'GENERATE NUMBER',
-        loanDate: new Date().getTime().toString(),
-        priceAsked: parseInt(data.vysledna_pozicka.toString()) * 100,
+        loanDate: new Date().toISOString().split('T')[0],
+        priceAsked: Dinero({amount: parseInt(data.vysledna_pozicka.toString()) * 100, currency: 'EUR'}).toFormat(),
         email: data.email.toString(),
-        password: password == '' ? 'Pravdepodobne už máte vytvorený účet, heslo nájdete v prvom maily.' : password,
+        password: password == '' ? 'Pravdepodobne už máte vytvorený účet, heslo nájdete v prvotnom maily.' : password,
     }
 
     const mjml = template(context);
