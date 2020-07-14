@@ -1,4 +1,4 @@
-exports.mapLoanData = (data, userId) => {
+function mapLoanData(data, userId) {
     const loan = {};
     let now = new Date();
     const loan_price = parseInt(data.vysledna_pozicka.toString()) * 100;
@@ -80,5 +80,5 @@ function mapDateFromLoanLength(loanLength) {
 }
 
 module.exports = {
-    countInterestPercentage, countInterest, mapDateFromLoanLength
+    countInterestPercentage, countInterest, mapDateFromLoanLength, mapLoanData
 }
