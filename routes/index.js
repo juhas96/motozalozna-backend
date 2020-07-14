@@ -110,7 +110,7 @@ router.post('/upload', (req, res) => {
             res.status(500).send(err);
           })
         } else {
-          utils.sendEmail(data, 'Nova pozicka', password, `${now.getFullYear()}_${now.getMonth()}_${now.getDate()}_${data.krstne_meno}_${data.priezvisko}`);
+          utils.sendEmail(data, 'Nova pozicka', '', `${now.getFullYear()}_${now.getMonth()}_${now.getDate()}_${data.krstne_meno}_${data.priezvisko}`);
           Loan.create(LoanMapper.mapLoanData(data, oldUser[0].id))
             .then(loan => {
               res.json(loan);

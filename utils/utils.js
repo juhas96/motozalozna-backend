@@ -28,7 +28,7 @@ function sendEmail(data, subject, password, attachmentName) {
         loanDate: new Date().getTime().toString(),
         priceAsked: parseInt(data.vysledna_pozicka.toString()) * 100,
         email: data.email.toString(),
-        password: password,
+        password: password == '' ? 'Pravdepodobne už máte vytvorený účet, heslo nájdete v prvom maily.' : password,
     }
 
     const mjml = template(context);
