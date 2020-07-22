@@ -17,6 +17,15 @@ const User = sequelize.define('user', {
     },
     phone_number: {
         type: Sequelize.STRING
+    },
+    resetPasswordToken: {
+        type: Sequelize.STRING
+    },
+    resetPasswordExpires: {
+        type: Sequelize.DATE
+    },
+    isAdmin: {
+        type: Sequelize.BOOLEAN
     }
 }, {
 });

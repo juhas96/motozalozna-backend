@@ -5,6 +5,81 @@ const handlebars = require('handlebars');
 const mjml2html = require('mjml')
 const Dinero = require('dinero.js');
 // require('dotenv').config();
+
+function sendConfirmResetEmail(email, subject) {
+  let transporter = nodemailer.createTransport({
+    host: process.env.EMAIL_HOST,
+    port: process.env.EMAIL_PORT,
+    secure: false, // true for 465, false for other ports
+    auth: {
+      user: process.env.EMAIL_USER, // generated ethereal user
+      pass: process.env.EMAIL_PASSWORD, // generated ethereal password
+    },
+  });
+
+  let mailOptions = {
+    to: email.toString(),
+    from: '"Motozalozna.sk" <info@motozalozna.sk>', // sender address
+    subject: subject.toString(),
+    text: 'Vaše heslo bolo úspešne zmenené.\n'
+  };
+
+  // verify connection configuration
+  transporter.verify(function(error, success) {
+    if (error) {
+      console.log(error);
+    } else {
+      console.log("Server is ready to take our messages");
+      transporter.sendMail(mailOptions)
+      .then(() => {
+        console.log('password change email sended');
+      })
+      .catch(err => {
+        console.log(err);
+      })
+    }
+  });
+}
+
+function sendResetEmail(email, subject, token, host) {
+  let transporter = nodemailer.createTransport({
+    host: process.env.EMAIL_HOST,
+    port: process.env.EMAIL_PORT,
+    secure: false, // true for 465, false for other ports
+    auth: {
+      user: process.env.EMAIL_USER, // generated ethereal user
+      pass: process.env.EMAIL_PASSWORD, // generated ethereal password
+    },
+  });
+
+  let mailOptions = {
+    to: email.toString(),
+    from: '"Motozalozna.sk" <info@motozalozna.sk>', // sender address
+    subject: subject.toString(),
+    text: 'Tento email bol vygenerovaný po požiadavke na obnovu / zmenu hesla pre Váš účet. \n\n' +
+        'Pre zmenu hesla kliknite na link alebo ho skopírujte do Vášho internetového prehliadača:\n\n' +
+        'https://' + host + '/reset/' + token + '\n\n' +
+        'Ak ste požiadavku na zmenu hesla nevytvorili, prosím ignorujte tento email a heslo ostane nezmenené.\n'
+  };
+
+  // verify connection configuration
+  transporter.verify(function(error, success) {
+    if (error) {
+      console.log(error);
+    } else {
+      console.log("Server is ready to take our messages");
+      
+  transporter.sendMail(mailOptions)
+    .then(() => {
+      console.log('reset email sended');
+    })
+    .catch(err => {
+      console.log(err);
+    })
+    }
+  });
+}
+
 /**
  * 
  * @param {*} data 
@@ -153,6 +228,22 @@ function createPdf(data, dirToSave, filename) {
    
 }
 
+module.exports = (req, res, next) => {
+  const authHeader = req.get('Authorization');
+  if (!authHeader) {
+    req.isAuth = false;
+    return next();
+  }
+
+  const token = authHeader.split(' ')[1];
+  if (!token || token === '') {
+    req.isAuth = false;
+    return next();
+  }
+
+
+}
+
 
 const template = handlebars.compile(`<mjml>
 <mj-body background-color="#ccd3e0">
@@ -254,5 +345,5 @@ const template = handlebars.compile(`<mjml>
 </mjml>`);
 
 module.exports = {
-    sendEmail, createPdf
+    sendEmail, createPdf, sendResetEmail, sendConfirmResetEmail
 }

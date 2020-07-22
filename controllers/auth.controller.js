@@ -2,6 +2,9 @@ const User = require("../models/user.model");
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 // require('dotenv').config();
+const crypto = require('crypto');
+const async = require('async');
+const utils = require('../utils/utils');
 
 const setToken = (res, refreshToken) =>
     res.cookie('token', refreshToken, {
@@ -39,19 +42,75 @@ function generateAccessToken(userEmail) {
 }
 
 exports.forgotPassword = (req, res) => {
-    const email = req.body.email;
-    // bcrypt.hashSync(password, 10)
-
-    User.findAll({where: {email: email}})
-        .then(user => {
-            if (user.length > 0) {
-
-            } else {
-                res.status(400).send({
-                    message: 'User is not exists.'
+    async.waterfall([
+        (done) => {
+            crypto.randomBytes(20, (err, buf) => {
+                var token = buf.toString('hex');
+                done(err, token);
+            });
+        },
+        (token, done) => {
+            User.findOne({where: {email: req.body.email}})
+                .then(singleUser => {
+                    if (!singleUser) {
+                        console.log('USER NOT FOUND');
+                    }
+                    let values = {
+                        resetPasswordToken: token,
+                        resetPasswordExpires: Date.now() + 3600000 // 1 hour
+                    }
+                    singleUser.update(values)
+                        .then(updatedRecord => {
+                            done(null, token, updatedRecord);
+                        })
+                })
+                .catch(err => {
+                    console.log(err);
+                    done(err,null,null);
                 });
-            }
-        })
+        },
+        (token, user, done) => {
+            utils.sendResetEmail(user.email, 'Zmena hesla - Motozalozna.sk', token, req.headers.host);
+            res.status(200).send({
+                message: 'Email for change password was sended'
+            })
+        }
+    ])
+}
+
+exports.resetPassword = (req, res) => {
+    async.waterfall([
+        (done) => {
+            User.findOne({where: {resetPasswordToken: req.params.token.split('token=')[1]}})
+                .then(singleUser => {
+                    console.log()
+                    if (singleUser) {
+                        if (req.body.password == req.body.confirm) {
+                            let values = {
+                                password: bcrypt.hashSync(req.body.password, 10),
+                                resetPasswordToken: undefined,
+                                resetPasswordExpires: undefined
+                            }
+                            singleUser.update(values)
+                                .then(updatedRecord => {
+                                    done(null, updatedRecord);
+                                })
+                                .catch(err => {
+                                    done(err, null);
+                                })
+                        }
+                    } else {
+                        res.status(403).send({
+                            message: 'Password reset token is invalid or has expired.'
+                        });
+                    }
+                })
+        },
+        (user, done) => {
+            utils.sendConfirmResetEmail(user.email, 'Vaše heslo bolo zmenené - Motozalozna.sk');
+            res.status(200).send('Password successfully changed');
+        }
+    ])
 }
 
 exports.login = (req, res) => {

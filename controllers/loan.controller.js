@@ -54,10 +54,13 @@ exports.findAllByUserId = (req, res) => {
 exports.pay = (req, res) => {
     const price = req.body.price;
     const loanId = req.body.loanId;
+    let loanPrice = 0;
+    let interestPrice = 0;
+    let isPayed = false;
 
     stripe.charges.create({
         amount: price,
-        source: req.body.stripeTokenId,
+        source: 'tok_mastercard',
         currency: 'eur'
     })
     .then( () => {
@@ -73,6 +76,7 @@ exports.pay = (req, res) => {
                 if (userPayed.lessThan(currentInterestPrice)) {
                     currentInterestPrice = currentInterestPrice.subtract(userPayed);
                     loan.interest = currentInterestPrice.getAmount();
+                    interestPrice = currentInterestPrice.getAmount();
                     Loan.update(
                         {interest: loan.interest},
                         {where: {id: loan.id}
@@ -99,6 +103,8 @@ exports.pay = (req, res) => {
                     // Save new loan object to DB, interest should equals to 0
                     loan.interest = 0;
                     loan.loan_price = currentLoanPrice.getAmount();
+                    interestPrice = 0;
+                    loanPrice = currentLoanPrice.getAmount()
 
                     Loan.update(
                         {interest: loan.interest, interest_paid: loan.interest_paid, loan_price: loan.loan_price},
@@ -121,7 +127,14 @@ exports.pay = (req, res) => {
             })
 
 
-        res.json({message: 'Successfully charged'});
+        res.json(
+            {
+                message: 'Successfully charged',
+                loanPrice: loanPrice,
+                loanInterest: interestPrice,
+                isPayed: isPayed
+            }
+        );
     })
     .catch(err => {
         res.status(500).send({
