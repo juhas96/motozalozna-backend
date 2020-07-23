@@ -127,7 +127,7 @@ exports.login = (req, res) => {
                     .then(result => {
                         if (result) {
                             setToken(res, accessToken);
-                            res.json({token: accessToken, userId: user[0].id})
+                            res.json({token: accessToken, userId: user[0].id, name: `${user[0].first_name} ${user[0].last_name}`})
                         } else {
                             return res.status(500).send({
                                 message: 'Cannot log in'
@@ -143,6 +143,9 @@ exports.login = (req, res) => {
         })
         .catch(err => {
             console.log(err);
+            res.status(500).send({
+                message: 'Error: ' + err
+            });
         })
 }
 
