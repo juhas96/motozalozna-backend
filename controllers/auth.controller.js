@@ -135,6 +135,9 @@ exports.login = (req, res) => {
                         }
                     })
             } else {
+                res.status(404).send({
+                    message: 'User not found'
+                });
                 console.log('user not found');
             }
         })
