@@ -38,6 +38,11 @@ cron.schedule('30 1 * * *', () => {
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
+// Endpoint for Heroku pinging
+app.get('/', (req, res) => {
+  return res.send('Hello');
+});
+
 app.use(logger('dev'));
 app.use(cors());
 app.use(express.json());
