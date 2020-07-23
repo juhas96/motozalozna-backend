@@ -307,10 +307,10 @@ const template = handlebars.compile(`<mjml>
   </mj-section>
   <mj-section background-color="#E16428" padding-bottom="20px">
     <mj-column width="50%">
-      <mj-button background-color="#FFF" color="black" font-size="14px" align="center" font-weight="bold" border="none" padding="15px 30px" border-radius="10px" href="https://mjml.io" font-family="Helvetica" padding-left="25px" padding-right="25px" padding-bottom="10px">Zobraziť žiadosť</mj-button>
+      <mj-button background-color="#FFF" color="black" font-size="14px" align="center" font-weight="bold" border="none" padding="15px 30px" border-radius="10px" href="http://motozalozna.sk/panel/" font-family="Helvetica" padding-left="25px" padding-right="25px" padding-bottom="10px">Zobraziť žiadosť</mj-button>
     </mj-column>
     <mj-column width="50%">
-      <mj-button background-color="#FFF" color="black" font-size="14px" align="center" font-weight="bold" border="none" padding="15px 30px" border-radius="10px" href="https://mjml.io" font-family="Helvetica" padding-left="25px" padding-right="25px" padding-bottom="12px">Zobraziť stav pôžičky</mj-button>
+      <mj-button background-color="#FFF" color="black" font-size="14px" align="center" font-weight="bold" border="none" padding="15px 30px" border-radius="10px" href="http://motozalozna.sk/panel/" font-family="Helvetica" padding-left="25px" padding-right="25px" padding-bottom="12px">Zobraziť stav pôžičky</mj-button>
     </mj-column>
   </mj-section>
   <mj-section background-color="#E16428" padding-bottom="5px" padding-top="0">
