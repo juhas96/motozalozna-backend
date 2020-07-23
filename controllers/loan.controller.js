@@ -40,7 +40,7 @@ exports.findAllByUserId = (req, res) => {
     const userId = req.headers.user_id;
     console.log(req.headers);
 
-    Loan.findAll({where: {userId: userId}})
+    Loan.findAll({where: {userId: userId}}, {include: ['user']})
         .then(data => {
             res.send(data);
         })
