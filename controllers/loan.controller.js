@@ -54,9 +54,6 @@ exports.findAllByUserId = (req, res) => {
 exports.pay = (req, res) => {
     const price = req.body.price;
     const loanId = req.body.loanId;
-    let loanPrice = 0;
-    let interestPrice = 0;
-    let isPayed = false;
 
     stripe.charges.create({
         amount: price,
@@ -76,13 +73,23 @@ exports.pay = (req, res) => {
                 if (userPayed.lessThan(currentInterestPrice)) {
                     currentInterestPrice = currentInterestPrice.subtract(userPayed);
                     loan.interest = currentInterestPrice.getAmount();
-                    interestPrice = currentInterestPrice.getAmount();
                     Loan.update(
                         {interest: loan.interest},
                         {where: {id: loan.id}
                     })
                     .then(() => {
-                            console.log('Successfully updated record with id: ' + loan.id);
+                        Loan.findByPk(loan.id)
+                        .then(updatedLoan => {
+                            res.json(
+                                {
+                                    message: 'Successfully charged',
+                                    loanPrice: updatedLoan.loan_price,
+                                    loanInterest: updatedLoan.interest,
+                                    interestPayed: updatedLoan.interest_paid
+                                }
+                            );
+                        })
+                        console.log('Successfully updated record with id: ' + loan.id);
                     })
                     .catch(err => {
                             console.log(err);
@@ -103,14 +110,23 @@ exports.pay = (req, res) => {
                     // Save new loan object to DB, interest should equals to 0
                     loan.interest = 0;
                     loan.loan_price = currentLoanPrice.getAmount();
-                    interestPrice = 0;
-                    loanPrice = currentLoanPrice.getAmount()
 
                     Loan.update(
                         {interest: loan.interest, interest_paid: loan.interest_paid, loan_price: loan.loan_price},
                         {where: {id: loan.id}
                     })
                     .then(() => {
+                        Loan.findByPk(loan.id)
+                            .then(updatedLoan => {
+                                res.json(
+                                    {
+                                        message: 'Successfully charged',
+                                        loanPrice: updatedLoan.loan_price,
+                                        loanInterest: updatedLoan.interest,
+                                        interestPayed: updatedLoan.interest_paid
+                                    }
+                                );
+                            })
                             console.log('Successfully updated record with id: ' + loan.id);
                     })
                     .catch(err => {
@@ -118,7 +134,6 @@ exports.pay = (req, res) => {
                     })
 
                     // TODO: consider to inform user with email
-                    // TODO: return updated object
                 }
             })
             .catch(err => {
@@ -126,16 +141,6 @@ exports.pay = (req, res) => {
                     message: err.message || 'Some error occurred while retrieving loan with ID: ' + loanId
                 })
             })
-
-
-        res.json(
-            {
-                message: 'Successfully charged',
-                loanPrice: loanPrice,
-                loanInterest: interestPrice,
-                isPayed: isPayed
-            }
-        );
     })
     .catch(err => {
         res.status(500).send({
@@ -166,6 +171,92 @@ exports.update = (req, res) => {
                 message: err.message || 'Loan with ID: ' + id + ' was not found' 
             });
         })
+}
+
+exports.updateLoanPrice = (req, res) => {
+    const price = req.body.price;
+    const loanId = req.body.loanId;
+
+    Loan.findByPk(loanId)
+            .then(loan => {
+                let currentLoanPrice = Dinero({amount: loan.loan_price, currency: 'EUR', precision: 2});
+                let currentInterestPrice = Dinero({amount: loan.interest, currency: 'EUR', precision: 2});
+                let userPayed = Dinero({amount: price, currency: 'EUR', precision: 2});
+
+                // 1.step -> deduct interest
+                // 2.step -> deduct loan price
+
+                if (userPayed.lessThan(currentInterestPrice)) {
+                    currentInterestPrice = currentInterestPrice.subtract(userPayed);
+                    loan.interest = currentInterestPrice.getAmount();
+                    Loan.update(
+                        {interest: loan.interest},
+                        {where: {id: loan.id}
+                    })
+                    .then(() => {
+                        Loan.findByPk(loan.id)
+                        .then(updatedLoan => {
+                            res.json(
+                                {
+                                    message: 'Successfully charged',
+                                    loanPrice: updatedLoan.loan_price,
+                                    loanInterest: updatedLoan.interest,
+                                    interestPayed: updatedLoan.interest_paid
+                                }
+                            );
+                        })
+                        console.log('Successfully updated record with id: ' + loan.id);
+                    })
+                    .catch(err => {
+                            console.log(err);
+                    })
+                } else if (userPayed.greaterThanOrEqual(currentInterestPrice)) {
+                    // subtract userPayed by interest, rest subtract from loanPrice
+                    userPayed = userPayed.subtract(currentInterestPrice);
+
+                    currentInterestPrice = currentInterestPrice.subtract(Dinero({amount: currentInterestPrice.getAmount(), currency: 'EUR', precision: 2}));
+
+                    currentLoanPrice = currentLoanPrice.subtract(userPayed);
+
+                    // if currentLoanPrice == 0, loan is fully payed
+                    if (currentLoanPrice.isZero()) {
+                        loan.interest_paid = true;
+                    }
+
+                    // Save new loan object to DB, interest should equals to 0
+                    loan.interest = 0;
+                    loan.loan_price = currentLoanPrice.getAmount();
+
+                    Loan.update(
+                        {interest: loan.interest, interest_paid: loan.interest_paid, loan_price: loan.loan_price},
+                        {where: {id: loan.id}
+                    })
+                    .then(() => {
+                        Loan.findByPk(loan.id)
+                            .then(updatedLoan => {
+                                res.json(
+                                    {
+                                        message: 'Successfully charged',
+                                        loanPrice: updatedLoan.loan_price,
+                                        loanInterest: updatedLoan.interest,
+                                        interestPayed: updatedLoan.interest_paid
+                                    }
+                                );
+                            })
+                            console.log('Successfully updated record with id: ' + loan.id);
+                    })
+                    .catch(err => {
+                            console.log(err);
+                    })
+
+                    // TODO: consider to inform user with email
+                }
+            })
+            .catch(err => {
+                res.status(500).send({
+                    message: err.message || 'Some error occurred while retrieving loan with ID: ' + loanId
+                })
+            })
 }
 
 // Delete a Loan by specified ID in the request
