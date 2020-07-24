@@ -118,6 +118,7 @@ exports.pay = (req, res) => {
                     })
 
                     // TODO: consider to inform user with email
+                    // TODO: return updated object
                 }
             })
             .catch(err => {
@@ -145,7 +146,26 @@ exports.pay = (req, res) => {
 
 // Update a Loan by the ID in the request
 exports.update = (req, res) => {
-
+    const id = req.headers.loan_id;
+    Loan.findByPk(id)
+        .then(loan => {
+            Loan.update(req.body, {where: {id: loan.id}})
+                .then(() => {
+                    Loan.findByPk(id).then(result => {
+                        res.status(200).send(result);
+                    });
+                })
+                .catch(err => {
+                    res.status(500).send({
+                        message: err.message || 'Some error occurred while updating loan with ID: ' + id
+                    })
+                })
+        })
+        .catch(err => {
+            res.status(404).send({
+                message: err.message || 'Loan with ID: ' + id + ' was not found' 
+            });
+        })
 }
 
 // Delete a Loan by specified ID in the request
