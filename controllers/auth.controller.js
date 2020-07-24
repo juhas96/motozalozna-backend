@@ -127,7 +127,7 @@ exports.login = (req, res) => {
                     .then(result => {
                         if (result) {
                             setToken(res, accessToken);
-                            res.json({token: accessToken, userId: user[0].id, name: `${user[0].first_name} ${user[0].last_name}`})
+                            res.json({token: accessToken, userId: user[0].id, name: `${user[0].first_name} ${user[0].last_name}`, isAdmin: user[0].isAdmin})
                         } else {
                             return res.status(500).send({
                                 message: 'Cannot log in'
