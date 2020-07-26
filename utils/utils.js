@@ -58,7 +58,7 @@ function sendResetEmail(email, subject, token, host) {
     subject: subject.toString(),
     text: 'Tento email bol vygenerovaný po požiadavke na obnovu / zmenu hesla pre Váš účet. \n\n' +
         'Pre zmenu hesla kliknite na link alebo ho skopírujte do Vášho internetového prehliadača:\n\n' +
-        'https://' + host + '/reset/' + token + '\n\n' +
+        'http://' + 'motozalozna.sk' + '/reset/' + token + '\n\n' +
         'Ak ste požiadavku na zmenu hesla nevytvorili, prosím ignorujte tento email a heslo ostane nezmenené.\n'
   };
 
